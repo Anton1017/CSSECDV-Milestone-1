@@ -7,6 +7,7 @@ const session = require('express-session');
 const exphbs = require('express-handlebars');
 const flash = require('connect-flash');
 const MongoStore = require('connect-mongo');
+const MySQLStore = require('express-mysql-session')(session);
 
 // For File Uploads
 const fileUpload = require('express-fileupload');
@@ -63,14 +64,26 @@ app.use(express.static(__dirname + '/public'));//use to apply css
 app.use(express.static(__dirname + '/'));//use to apply css
 app.use(fileUpload()); // for fileuploading
 
+
+const options = {
+  host: process.env.HOSTNAME,
+  port: process.env.PORT,
+  user: process.env.USER,
+  password: process.env.PASSWORD
+}
+
+const sessionStore = new MySQLStore(options)
+
 // Sessions
 app.use(session({
     secret: process.env.SESSION_SECRET,
-    store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI || mongoURI}),
+    store: sessionStore,
     resave: false,
     saveUninitialized: true,
     cookie: { secure: false, maxAge: 1000 * 60 * 60 * 24 * 14 }
   }));
+
+
 
 // Flash
 app.use(flash());

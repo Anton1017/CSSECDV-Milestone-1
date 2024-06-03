@@ -42,7 +42,7 @@ textarea {
 	color: black !important;
 }
 
-input[type="text"],input[type="search"],input[type="email"],input[type="password"],input[type="file"], textarea {
+input[type="text"],input[type="search"],input[type="email"],input[type="password"],input[type="file"],input[type="tel"], textarea {
 	padding: 12px;
 	color: gray;
 	border-radius: 10px;

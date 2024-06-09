@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@prisma/client": "^5.15.0",
     "bcryptjs": "^2.4.3",
     "connect-flash": "^0.1.1",
     "connect-mongo": "^4.6.0",
@@ -22,7 +23,9 @@
   "description": "CCAPDEV Machine Project",
   "version": "1.0.0",
   "main": "index.js",
-  "devDependencies": {},
+  "devDependencies": {
+    "prisma": "^5.15.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

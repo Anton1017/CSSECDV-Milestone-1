@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model CommentLikes {
+  CommentLikeID String        @id @default(dbgenerated("(uuid())")) @db.VarChar(45)
+  CommentID     String?       @db.VarChar(45)
+  UserID        String?       @db.VarChar(45)
+  PostComments  PostComments? @relation(fields: [CommentID], references: [PostCommentID], onDelete: NoAction, onUpdate: NoAction, map: "CommentLikeID")
+  Users         Users?        @relation(fields: [UserID], references: [UsersID], onDelete: NoAction, onUpdate: NoAction, map: "UserLikedCommentID")
+
+  @@index([CommentID], map: "CommentLikeID_idx")
+  @@index([UserID], map: "UserLikedCommentID_idx")
+}
+
+model PostComments {
+  PostCommentID      String         @id @default(dbgenerated("(uuid())")) @db.VarChar(45)
+  PostID             String         @db.VarChar(45)
+  CommenterID        String         @db.VarChar(45)
+  TextContent        String?        @db.VarChar(255)
+  ImageContent       String?        @db.VarChar(45)
+  ParentCommentID    String?        @db.VarChar(45)
+  NumComments        Int            @default(0)
+  TimeCommented      DateTime       @default(dbgenerated("(now())")) @db.DateTime(0)
+  CommentLikes       CommentLikes[]
+  Users              Users          @relation(fields: [CommenterID], references: [UsersID], onDelete: NoAction, onUpdate: NoAction, map: "CommenterID")
+  PostComments       PostComments?  @relation("PostCommentsToPostComments", fields: [ParentCommentID], references: [PostCommentID], onDelete: NoAction, onUpdate: NoAction, map: "ParentCommentID")
+  other_PostComments PostComments[] @relation("PostCommentsToPostComments")
+  Posts              Posts          @relation(fields: [PostID], references: [PostID], onDelete: NoAction, onUpdate: NoAction, map: "PostID")
+
+  @@index([CommenterID], map: "CommenterID_idx")
+  @@index([ParentCommentID], map: "ParentCommentID_idx")
+  @@index([PostID], map: "PostID_idx")
+}
+
+model PostLikes {
+  PostLikeID String @id @unique(map: "PostLikeID_UNIQUE") @default(dbgenerated("(uuid())")) @db.VarChar(45)
+  PostID     String @db.VarChar(45)
+  UserID     String @db.VarChar(45)
+  Posts      Posts  @relation(fields: [PostID], references: [PostID], onDelete: NoAction, onUpdate: NoAction, map: "PostLikedID")
+  Users      Users  @relation(fields: [UserID], references: [UsersID], onDelete: NoAction, onUpdate: NoAction, map: "UserLikePostID")
+
+  @@index([PostID], map: "PostLikedID_idx")
+  @@index([UserID], map: "UserLikePostID_idx")
+}
+
+model Posts {
+  PostID       String         @id @default(dbgenerated("(uuid())")) @db.VarChar(45)
+  UserID       String         @db.VarChar(45)
+  Title        String         @db.VarChar(45)
+  TextContent  String?        @db.VarChar(45)
+  ImageContent String?        @db.VarChar(45)
+  NumLikes     Int            @default(0)
+  TimePosted   DateTime?      @default(dbgenerated("(now())")) @db.DateTime(0)
+  PostComments PostComments[]
+  PostLikes    PostLikes[]
+  Users        Users          @relation(fields: [UserID], references: [UsersID], onDelete: NoAction, onUpdate: NoAction, map: "PosterID")
+
+  @@index([UserID], map: "PosterID_idx")
+}
+
+model UserProfile {
+  UserProfileID String  @id @unique(map: "UserProfileID_UNIQUE") @default(dbgenerated("(uuid())")) @db.VarChar(45)
+  UserID        String  @db.VarChar(45)
+  Bio           String? @db.VarChar(45)
+  FavQuote      String? @db.VarChar(45)
+  FaveCharImg   String? @db.VarChar(45)
+  Users         Users   @relation(fields: [UserID], references: [UsersID], onDelete: NoAction, onUpdate: NoAction, map: "ProfileUserID")
+
+  @@index([UserID], map: "ProfileUserID_idx")
+}
+
+model Users {
+  UsersID        String         @id @default(dbgenerated("(uuid())")) @db.VarChar(45)
+  Username       String         @unique(map: "Username_UNIQUE") @db.VarChar(45)
+  Email          String         @unique(map: "Email_UNIQUE") @db.VarChar(45)
+  Password       String         @db.VarChar(45)
+  PasswordSalt   String         @db.VarChar(45)
+  ProfileImg     String         @db.VarChar(45)
+  FullName       String         @db.VarChar(45)
+  ContactNumber  String         @db.VarChar(15)
+  DateRegistered DateTime       @default(dbgenerated("(now())")) @db.DateTime(0)
+  DateModified   DateTime       @default(dbgenerated("(now())")) @db.DateTime(0)
+  IsAdmin        Boolean        @default(false)
+  CommentLikes   CommentLikes[]
+  PostComments   PostComments[]
+  PostLikes      PostLikes[]
+  Posts          Posts[]
+  UserProfile    UserProfile[]
+}

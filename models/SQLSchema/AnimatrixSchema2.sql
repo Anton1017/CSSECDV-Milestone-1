@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `animatrix`.`Users` (
   `UsersID` VARCHAR(45) NOT NULL DEFAULT (UUID()),
   `Username` VARCHAR(45) NOT NULL,
   `Email` VARCHAR(45) NOT NULL,
-  `Password` VARCHAR(45) NOT NULL,
+  `Password` VARCHAR(60) NOT NULL,
   `PasswordSalt` VARCHAR(45) NOT NULL,
   `ProfileImg` VARCHAR(45) NOT NULL,
   `FullName` VARCHAR(45) NOT NULL,

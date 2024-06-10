@@ -4,7 +4,7 @@ const controller = require('../controllers/controller');
 const { registrationValidation, loginValidation } = require('../validators.js');
 const { isPublic, isPrivate } = require('../middlewares/checkAuth');
 
-
+const sqluserController = require('../controllers/sqluserController.js')
 // GET login to display login page
 router.get('/login', isPublic, controller.getLogin);
 
@@ -17,5 +17,9 @@ router.post('/login', isPublic, loginValidation, userController.loginUser);
 
 // logout
 router.get('/logout', isPrivate, userController.logoutUser);
+
+//temporary only
+router.post('/test-register', sqluserController.registerUser)
+router.post('/test-login', sqluserController.loginUser);
 
 module.exports = router;

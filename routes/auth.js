@@ -12,8 +12,8 @@ router.get('/login', isPublic, controller.getLogin);
 router.get('/signup', isPublic, controller.getSignup);
 
 // POST methods for form submissions
-router.post('/signup', isPublic, registrationValidation, userController.registerUser);
-router.post('/login', isPublic, loginValidation, userController.loginUser);
+router.post('/signup', isPublic, registrationValidation, sqluserController.registerUser);
+router.post('/login', isPublic, loginValidation, sqluserController.loginUser);
 
 // logout
 router.get('/logout', isPrivate, userController.logoutUser);

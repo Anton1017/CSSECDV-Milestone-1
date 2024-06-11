@@ -7,9 +7,9 @@ const { validationResult,body } = require('express-validator');
 const bcrypt = require('bcryptjs');
 
 const opts = {
-  points: 5, // 5 points
-  duration: 15 * 60, // Per 15 minutes
-  blockDuration: 15 * 60, // block for 15 minutes if more than points consumed 
+  points: 5, // Maximum of 5 points (5 attempts)
+  duration: 5 * 60, // Points regenerated every 5 minutes
+  blockDuration: 25 * 60, // Block for 25 minutes if points are depleted
 };
 
 const rateLimiter = new RateLimiterMemory(opts);
@@ -92,7 +92,7 @@ exports.loginUser = async (req, res) => {
 
   rateLimiter.consume(req.connection.remoteAddress) // consume 2 points
   .then((rateLimiterRes) => {
-    // 2 points consumed
+    // 1 points consumed
     const errors = validationResult(req);
 
     if (errors.isEmpty()) {
@@ -136,7 +136,7 @@ exports.loginUser = async (req, res) => {
   })
   .catch((rateLimiterRes) => {
     // Not enough points to consume
-    req.flash('error_msg', 'You have exceeded the login attempts. Please come back later');
+    req.flash('error_msg', 'You have exceeded the login attempts. Please come back later.');
     return res.redirect('/login');
   });
 

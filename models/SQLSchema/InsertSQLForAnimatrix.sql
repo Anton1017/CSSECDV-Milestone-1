@@ -1,0 +1,78 @@
+INSERT INTO `animatrix`.`Users` (
+  `UsersID`,
+  `Username`,
+  `Email`,
+  `Password`,
+  `PasswordSalt`,
+  `ProfileImg`,
+  `FullName`,
+  `ContactNumber`,
+  `DateRegistered`,
+  `DateModified`,
+  `IsAdmin`
+) VALUES
+(
+  UUID(),
+  'johndoe',
+  'johndoe@example.com',
+  'password123',
+  'salt123',
+  'johndoe.jpg',
+  'John Doe',
+  '1234567890',
+  NOW(),
+  NOW(),
+  0
+),
+(
+  UUID(),
+  'janedoe',
+  'janedoe@example.com',
+  'password456',
+  'salt456',
+  'janedoe.jpg',
+  'Jane Doe',
+  '0987654321',
+  NOW(),
+  NOW(),
+  0
+),
+(
+  UUID(),
+  'adminuser',
+  'admin@example.com',
+  'adminpass',
+  'saltadmin',
+  'admin.jpg',
+  'Admin User',
+  '1122334455',
+  NOW(),
+  NOW(),
+  1
+),
+(
+  UUID(),
+  'michael',
+  'michael@example.com',
+  'password789',
+  'salt789',
+  'michael.jpg',
+  'Michael Smith',
+  '1231231234',
+  NOW(),
+  NOW(),
+  0
+),
+(
+  UUID(),
+  'sarah',
+  'sarah@example.com',
+  'password101112',
+  'salt101112',
+  'sarah.jpg',
+  'Sarah Connor',
+  '3213214321',
+  NOW(),
+  NOW(),
+  0
+);

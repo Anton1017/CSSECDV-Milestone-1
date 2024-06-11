@@ -6,27 +6,27 @@
 	<h4 class="login_text">	
 		<form action="/signup" method="POST" enctype="application/x-www-form-urlencoded">
 			Email: <br>
-			<input placeholder="Email" type="email" id="email" name="email"/>
+			<input placeholder="Email" type="email" id="email" name="email" pattern="^[a-zA-Z\d]+([_.-][a-zA-Z\d]+)*@[a-zA-Z\d]+[a-zA-Z\d\-]*(?<!-)(\.(?!-)(?!.*--)(?=.*[A-Za-z].*[A-Za-z])[a-zA-Z\d\-]{2,}(?<!-))+$" title="Place a proper email format" required/>
 			<br>
 			<br>
 			Username: <br>
-			<input placeholder="Username" type="text" id="username" name="username"/>
+			<input placeholder="Username" type="text" id="username" name="username" required/>
 			<br>
 			<br>
 			Full Name: <br>
-			<input placeholder="Full_Name" type="text" id="full_name" name="full_name"/>
+			<input placeholder="Full_Name" type="text" id="full_name" name="full_name" required/>
 			<br>
 			<br>
 			Phone Number: <br>
-			<input placeholder="Contact_number" type="tel" id="contact_number" name="contact_number"/>
+			<input placeholder="Contact number" type="tel" id="contact_number" name="contact_number" pattern="^\+63\d{10}$|^09\d{9}$" title="Phone number must either be +63 XXX XXX XXXX or 09XX XXX XXXX" required/>
 			<br>
 			<br>
 			Password: <br>
-			<input placeholder="Password" type="password" id="password" name="password"/>
+			<input placeholder="Password" type="password" id="password" name="password" required/>
 			<br>
 			<br>
 			Confirm Password: <br>
-			<input placeholder="Confirm Password" type="password" id="confirmPass" name="confirmPass"/>
+			<input placeholder="Confirm Password" type="password" id="confirmPass" name="confirmPass" required/>
 			<br>
 			<br>
 			<input type="submit" value="Sign-up"></input>

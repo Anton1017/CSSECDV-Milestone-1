@@ -3,6 +3,7 @@ const userController = require('../controllers/userController');
 const controller = require('../controllers/controller');
 const { registrationValidation, loginValidation } = require('../validators.js');
 const { isPublic, isPrivate } = require('../middlewares/checkAuth');
+const express = require('express');
 
 const sqluserController = require('../controllers/sqluserController.js')
 // GET login to display login page

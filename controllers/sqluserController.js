@@ -2,25 +2,13 @@ const { PrismaClient } = require('@prisma/client')
 
 const prisma = new PrismaClient()
 
-const { validationResult } = require('express-validator');
+const { validationResult,body } = require('express-validator');
 const bcrypt = require('bcryptjs');
 
-
 exports.registerUser = async (req, res) => {
-  // 1. Validate request
-
-  // 2. If VALID, find if username exists in users
-  //      NEW USER (no results retrieved)
-  //        a. Hash password
-  //        b. Create user
-  //        c. Redirect to login page
-  //      EXISTING USER (match retrieved)
-  //        a. Redirect user to login page with error message.
-
-  // 3. If INVALID, redirect to register page with errors
   const errors = validationResult(req);
 
-  if (!errors.isEmpty()){
+  if (!errors.isEmpty()) {
     const messages = errors.array().map((item) => item.msg);
     req.flash('error_msg', messages.join(' '));
     return res.redirect('/signup');
@@ -31,44 +19,38 @@ exports.registerUser = async (req, res) => {
     where: {
       Username: username,
     },
-  })
+  });
 
-  if (results!=null){
-    console.log(results);
-    // found a match, return to login with error
+  if (results != null) {
     req.flash('error_msg', 'Username already exists.');
     return res.redirect('/signup');
   }
 
   const saltRounds = 10;
 
+  try {
+    const salt = await bcrypt.genSalt(saltRounds);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-  bcrypt.genSalt(saltRounds, function(err, salt) {
-    bcrypt.hash(password, salt, async function(err, hashed) {
-        try {
-          await prisma.users.create({
-              data: {
-                Username: username,
-                Email: email,
-                Password: hashed,
-                PasswordSalt: salt,
-                ContactNumber: contact_number,
-                ProfileImg: "profile.img",
-                FullName: full_name
-                //REMINDER: Add UserProfile
-              },
-            })
-          
-        } catch (error) {
-          console.log(error)
-          req.flash('error_msg', 'Could not create user. Please try again.');
-          return res.redirect('/signup');
-        }
-       
+    await prisma.users.create({
+      data: {
+        Username: username,
+        Email: email,
+        Password: hashedPassword,
+        PasswordSalt: salt,
+        ContactNumber: contact_number,
+        ProfileImg: "profile.img",
+        FullName: full_name,
+      },
     });
-  });
 
-  
+    req.flash('success_msg', 'You are now registered and can log in');
+    return res.redirect('/login');
+  } catch (error) {
+    console.log(error);
+    req.flash('error_msg', 'Could not create user. Please try again.');
+    return res.redirect('/signup');
+  }
 };
 
 exports.loginUser = async (req, res) => {

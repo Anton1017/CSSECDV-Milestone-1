@@ -23,7 +23,7 @@ exports.registerUser = async (req, res) => {
   if (!errors.isEmpty()){
     const messages = errors.array().map((item) => item.msg);
     req.flash('error_msg', messages.join(' '));
-    res.redirect('/signup');
+    return res.redirect('/signup');
   }
 
   const { username, email, password, full_name, contact_number } = req.body;
@@ -37,7 +37,7 @@ exports.registerUser = async (req, res) => {
     console.log(results);
     // found a match, return to login with error
     req.flash('error_msg', 'Username already exists.');
-    res.redirect('/signup');
+    return res.redirect('/signup');
   }
 
   const saltRounds = 10;
@@ -62,7 +62,7 @@ exports.registerUser = async (req, res) => {
         } catch (error) {
           console.log(error)
           req.flash('error_msg', 'Could not create user. Please try again.');
-          res.redirect('/signup');
+          return res.redirect('/signup');
         }
        
     });
@@ -98,7 +98,7 @@ exports.loginUser = async (req, res) => {
     })
     if (user==null){
       req.flash('error_msg', 'No registered user with that username. Create a new account by clicking the link above.');
-      res.redirect('/login');
+      return res.redirect('/login');
     }
 
     bcrypt.compare(password, user.Password, (err, result) => {
@@ -114,13 +114,13 @@ exports.loginUser = async (req, res) => {
       } else {
         // passwords don't match
         req.flash('error_msg', 'Incorrect password. Please try again.');
-        res.redirect('/login');
+        return res.redirect('/login');
       }
     });
   } else {
     const messages = errors.array().map((item) => item.msg);
     req.flash('error_msg', messages.join(' '));
-    res.redirect('/login');
+    return res.redirect('/login');
   }
 };
 
@@ -129,7 +129,7 @@ exports.logoutUser = (req, res) => {
   if (req.session) {
     req.session.destroy(() => {
       res.clearCookie('connect.sid');
-      res.redirect('/login');
+      return res.redirect('/login');
     });
   }
 };

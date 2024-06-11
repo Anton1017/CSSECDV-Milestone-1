@@ -5,53 +5,65 @@ const prisma = new PrismaClient()
 const { validationResult,body } = require('express-validator');
 const bcrypt = require('bcryptjs');
 
-exports.registerUser = async (req, res) => {
-  const errors = validationResult(req);
 
-  if (!errors.isEmpty()) {
-    const messages = errors.array().map((item) => item.msg);
-    req.flash('error_msg', messages.join(' '));
-    return res.redirect('/signup');
-  }
+// body('email')
+// .isEmail().withMessage('Enter a valid email address.')
+// .matches(/^[a-zA-Z\d]+([_.-][a-zA-Z\d]+)*@[a-zA-Z\d]+[a-zA-Z\d\-]*(?<!-)(\.(?!-)(?=.*[A-Za-z].*[A-Za-z])[a-zA-Z\d\-]{2,}(?<!-))+$/).withMessage('Invalid email format.'),
+// body('contact_number')
+// .matches(/^\+63\d{10}$|^09\d{9}$/).withMessage('Phone number must either be +63 XXX XXX XXXX or 09XX XXX XXXX.'),
+exports.registerUser = [
+  // Add express-validator middleware for server-side validation
+  body('email')
+  .isEmail().withMessage('Enter a valid email address.')
+  .matches(/^[a-zA-Z\d]+([_.-][a-zA-Z\d]+)*@[a-zA-Z\d]+[a-zA-Z\d\-]*(?<!-)(\.(?!-)(?=.*[A-Za-z].*[A-Za-z])[a-zA-Z\d\-]{2,}(?<!-))+$/).withMessage('Invalid email format.'),
+  body('contact_number')
+  .matches(/^\+63\d{10}$|^09\d{9}$/).withMessage('Phone number must either be +63 XXX XXX XXXX or 09XX XXX XXXX.'),
+  async (req, res) => {
+    const errors = validationResult(req);
 
-  const { username, email, password, full_name, contact_number } = req.body;
-  const results = await prisma.users.findUnique({
-    where: {
-      Username: username,
-    },
-  });
+    if (!errors.isEmpty()) {
+      const messages = errors.array().map((item) => item.msg);
+      req.flash('error_msg', messages.join(' '));
+      return res.redirect('/signup');
+    }
 
-  if (results != null) {
-    req.flash('error_msg', 'Username already exists.');
-    return res.redirect('/signup');
-  }
-
-  const saltRounds = 10;
-
-  try {
-    const salt = await bcrypt.genSalt(saltRounds);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    await prisma.users.create({
-      data: {
-        Username: username,
-        Email: email,
-        Password: hashedPassword,
-        PasswordSalt: salt,
-        ContactNumber: contact_number,
-        ProfileImg: "profile.img",
-        FullName: full_name,
-      },
+    const { username, email, password, full_name, contact_number } = req.body;
+    const results = await prisma.users.findUnique({
+      where: { Username: username },
     });
 
-    req.flash('success_msg', 'You are now registered and can log in');
-    return res.redirect('/login');
-  } catch (error) {
-    console.log(error);
-    req.flash('error_msg', 'Could not create user. Please try again.');
-    return res.redirect('/signup');
+    if (results != null) {
+      req.flash('error_msg', 'Username already exists.');
+      return res.redirect('/signup');
+    }
+
+    const saltRounds = 10;
+
+    try {
+      const salt = await bcrypt.genSalt(saltRounds);
+      const hashedPassword = await bcrypt.hash(password, salt);
+
+      await prisma.users.create({
+        data: {
+          Username: username,
+          Email: email,
+          Password: hashedPassword,
+          PasswordSalt: salt,
+          ContactNumber: contact_number,
+          ProfileImg: "profile.img",
+          FullName: full_name,
+        },
+      });
+
+      req.flash('success_msg', 'You are now registered and can log in');
+      return res.redirect('/login');
+    } catch (error) {
+      console.log(error);
+      req.flash('error_msg', 'Could not create user. Please try again.');
+      return res.redirect('/signup');
+    }
   }
-};
+];
 
 exports.loginUser = async (req, res) => {
   // 1. Validate request

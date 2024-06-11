@@ -99,11 +99,11 @@ exports.loginUser = async (req, res) => {
       // passwords match (result == true)
       if (result) {
         // Update session object once matched!
-        req.session.user = user._id;
-        req.session.username = user.username;
-
+        req.session.user = user.UsersID;
+        req.session.username = user.Username;
+        console.log("Login Success");
         console.log(req.session);
-
+        
         res.redirect('/');
       } else {
         // passwords don't match

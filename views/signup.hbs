@@ -39,7 +39,7 @@
 
           <div class="signup_item_2">
             Profile Image: 
-            <input type="file" value="Attach Photo" class="post-upload-image" accept="image/*" name="imageContent"/> 
+            <input type="file" value="Attach Photo" class="post-upload-image" name="imageContent" accept="image/jpeg, image/png" onchange="validateFileType(this)"/> 
           </div>
 
         </div>
@@ -53,6 +53,32 @@
     {{> status_msg}}
   </div>
 </div>
+
+<script>
+  function validateFileType(fileInput) {
+    const file = fileInput.files[0];
+    const fileReader = new FileReader();
+	
+	if (file) {
+      fileReader.readAsArrayBuffer(file);
+    }
+
+    fileReader.onloadend = function() {
+      const arrayBuffer = fileReader.result;
+      const viewArray = new Uint8Array(arrayBuffer);
+
+      // Check magic numbers for JPG and PNG
+      const isJPG = viewArray[0] === 0xFF && viewArray[1] === 0xD8;
+      const isPNG = viewArray[0] === 0x89 && viewArray[1] === 0x50 && viewArray[2] === 0x4E && viewArray[3] === 0x47;
+
+      if (!isJPG && !isPNG) {
+        alert(`The file you selected is not a JPG or PNG image.`);
+        fileInput.value = ''; // Clear the file input
+      }
+    };
+  }
+</script>
+
 
 {{!-- <script>
   document.getElementById('signupForm').addEventListener('submit', function(event) {

@@ -1,18 +1,9 @@
 const { PrismaClient } = require('@prisma/client')
-const { RateLimiterMemory } = require("rate-limiter-flexible");
 
 const prisma = new PrismaClient()
 
 const { validationResult,body } = require('express-validator');
 const bcrypt = require('bcryptjs');
-
-const opts = {
-  points: 5, // 5 points
-  duration: 15 * 60, // Per 15 minutes
-  blockDuration: 15 * 60, // block for 15 minutes if more than points consumed 
-};
-
-const rateLimiter = new RateLimiterMemory(opts);
 
 
 // body('email')
@@ -88,59 +79,45 @@ exports.loginUser = async (req, res) => {
   //        a. Redirect to login page with error message
 
   // 3. If INVALID, redirect to login page with errors
-  
+  const errors = validationResult(req);
 
-  rateLimiter.consume(req.connection.remoteAddress) // consume 2 points
-  .then((rateLimiterRes) => {
-    // 2 points consumed
-    const errors = validationResult(req);
+  if (errors.isEmpty()) {
+    const {
+      username,
+      password
+    } = req.body;
 
-    if (errors.isEmpty()) {
-      const {
-        username,
-        password
-      } = req.body;
-
-      const user = prisma.users.findUnique({
-        where: {
-          Username: username,
-        },
-      })
-      if (user==null){
-        req.flash('error_msg', 'No registered user with that username. Create a new account by clicking the link above.');
-        return res.redirect('/login');
-      }
-
-      bcrypt.compare(password, user.Password, (err, result) => {
-        // passwords match (result == true)
-        if (result) {
-          // Update session object once matched!
-          req.session.user = user.UsersID;
-          req.session.username = user.Username;
-          console.log("Login Success");
-          console.log(req.session);
-          
-          res.redirect('/');
-        } else {
-          // passwords don't match
-          req.flash('error_msg', 'Incorrect password. Please try again.');
-          return res.redirect('/login');
-        }
-      });
-    } else {
-      const messages = errors.array().map((item) => item.msg);
-      req.flash('error_msg', messages.join(' '));
+    const user = await prisma.users.findUnique({
+      where: {
+        Username: username,
+      },
+    })
+    if (user==null){
+      req.flash('error_msg', 'No registered user with that username. Create a new account by clicking the link above.');
       return res.redirect('/login');
     }
-    
-  })
-  .catch((rateLimiterRes) => {
-    // Not enough points to consume
-    req.flash('error_msg', 'You have exceeded the login attempts. Please come back later');
-    return res.redirect('/login');
-  });
 
-  
+    bcrypt.compare(password, user.Password, (err, result) => {
+      // passwords match (result == true)
+      if (result) {
+        // Update session object once matched!
+        req.session.user = user.UsersID;
+        req.session.username = user.Username;
+        console.log("Login Success");
+        console.log(req.session);
+        
+        res.redirect('/');
+      } else {
+        // passwords don't match
+        req.flash('error_msg', 'Incorrect password. Please try again.');
+        return res.redirect('/login');
+      }
+    });
+  } else {
+    const messages = errors.array().map((item) => item.msg);
+    req.flash('error_msg', messages.join(' '));
+    return res.redirect('/login');
+  }
 };
 
 exports.logoutUser = (req, res) => {

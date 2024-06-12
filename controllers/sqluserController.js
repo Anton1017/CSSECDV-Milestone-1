@@ -91,7 +91,7 @@ exports.loginUser = async (req, res) => {
   
 
   rateLimiter.consume(req.connection.remoteAddress) // consume 2 points
-  .then((rateLimiterRes) => {
+  .then(async (rateLimiterRes) => {
     // 1 points consumed
     const errors = validationResult(req);
 
@@ -101,7 +101,7 @@ exports.loginUser = async (req, res) => {
         password
       } = req.body;
 
-      const user = prisma.users.findUnique({
+      const user = await prisma.users.findUnique({
         where: {
           Username: username,
         },
@@ -115,12 +115,12 @@ exports.loginUser = async (req, res) => {
         // passwords match (result == true)
         if (result) {
           // Update session object once matched!
-          req.session.user = user.UsersID;
-          req.session.username = user.Username;
-          console.log("Login Success");
-          console.log(req.session);
+          // req.session.user = user.UsersID;
+          // req.session.username = user.Username;
+          // console.log("Login Success");
+          // console.log(req.session);
           
-          res.redirect('/');
+          res.redirect('/signup');
         } else {
           // passwords don't match
           req.flash('error_msg', 'Incorrect password. Please try again.');

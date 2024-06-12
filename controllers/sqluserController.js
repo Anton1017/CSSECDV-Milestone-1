@@ -116,7 +116,15 @@ exports.loginUser = async (req, res) => {
           // console.log("Login Success");
           // console.log(req.session);
           req.flash('error_msg', 'Login successful.');
-          return res.redirect('/login');
+          if (user.IsAdmin == 1)
+          {
+            return res.redirect('/admin-home');
+          }
+          else if (user.IsAdmin == 0)
+          {
+            return res.redirect('/user-home');
+          }
+          //return res.redirect('/login');
         } else {
           // passwords don't match
           req.flash('error_msg', 'Incorrect credentials. Please try again.');

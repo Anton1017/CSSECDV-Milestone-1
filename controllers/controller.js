@@ -31,6 +31,19 @@ const controller = {
         });
     },
 
+    getAdminHome: (req, res) => {
+        res.render('admin_home', {
+            pageTitle: 'Admin Home',
+            layout: 'index'
+        });
+    },
+
+    getUserHome: (req, res) => {
+        res.render('user_home', {
+            pageTitle: 'User Home',
+            layout: 'index'
+        });
+    },
     getAbout: (req, res) => {
         db.findOne(Profile, { username: req.session.username }, 'profileImg', (header) =>{ //profile pic query
             res.render('about', { 

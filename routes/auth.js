@@ -23,4 +23,8 @@ router.get('/logout', isPrivate, userController.logoutUser);
 router.post('/test-register', sqluserController.registerUser)
 router.post('/test-login', sqluserController.loginUser);
 
+//for admin and user view
+router.get('/admin-home', isPublic, controller.getAdminHome);
+router.get('/user-home', isPublic, controller.getUserHome);
+
 module.exports = router;

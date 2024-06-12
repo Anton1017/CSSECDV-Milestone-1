@@ -12,6 +12,7 @@ const opts = {
   duration: 5 * 60, // Points regenerated every 5 minutes
   blockDuration: 25 * 60, // Block for 25 minutes if points are depleted
 };
+
 function validateFileType(file) {
   const viewArray = new Uint8Array(file.data);
 
@@ -21,6 +22,7 @@ function validateFileType(file) {
 
   return isJPG || isPNG;
 }
+
 const rateLimiter = new RateLimiterMemory(opts);
 exports.registerUser = [
   async (req, res) => {
@@ -33,12 +35,18 @@ exports.registerUser = [
     }
 
     const { username, email, password, full_name, contact_number, imageContent } = req.body;
-    const imageFile = req.files.imageContent;
-    const imageTitle = imageFile.name;
-    if (!validateFileType(imageFile)) {
-      req.flash('error_msg', 'The file you selected is not a JPG or PNG image.');
-      return res.redirect('/signup');
+
+    const form_files = req.files;
+    
+    if(form_files != null && "imageContent" in form_files){
+      const imageFile = req.files.imageContent;
+
+      if (!validateFileType(imageFile)) {
+        req.flash('error_msg', 'The file you selected is not a JPG or PNG image.');
+        return res.redirect('/signup');
+      }
     }
+
     const results = await prisma.users.findUnique({
       where: { Username: username },
     });
@@ -61,7 +69,7 @@ exports.registerUser = [
           Password: hashedPassword,
           PasswordSalt: salt,
           ContactNumber: contact_number,
-          ProfileImg: imageTitle,
+          ProfileImg: (form_files != null && "imageContent" in form_files) ? form_files.imageContent.name : "generic_profile_pic.png",
           FullName: full_name,
         },
       });
@@ -77,19 +85,7 @@ exports.registerUser = [
 ];
 
 exports.loginUser = async (req, res) => {
-  // 1. Validate request
-
-  // 2. If VALID, find if email exists in users
-  //      EXISTING USER (match retrieved)
-  //        a. Check if password matches hashed password in database
-  //        b. If MATCH, save info to session and redirect to home
-  //        c. If NOT equal, redirect to login page with error
-  //      UNREGISTERED USER (no results retrieved)
-  //        a. Redirect to login page with error message
-
-  // 3. If INVALID, redirect to login page with errors
-  
-
+ 
   rateLimiter.consume(req.connection.remoteAddress) // consume 2 points
   .then(async (rateLimiterRes) => {
     // 1 points consumed
@@ -107,7 +103,7 @@ exports.loginUser = async (req, res) => {
         },
       })
       if (user==null){
-        req.flash('error_msg', 'No registered user with that username. Create a new account by clicking the link above.');
+        req.flash('error_msg', 'Incorrect credentials. Please try again.');
         return res.redirect('/login');
       }
 
@@ -119,11 +115,11 @@ exports.loginUser = async (req, res) => {
           // req.session.username = user.Username;
           // console.log("Login Success");
           // console.log(req.session);
-          
-          res.redirect('/signup');
+          req.flash('error_msg', 'Login successful.');
+          return res.redirect('/login');
         } else {
           // passwords don't match
-          req.flash('error_msg', 'Incorrect password. Please try again.');
+          req.flash('error_msg', 'Incorrect credentials. Please try again.');
           return res.redirect('/login');
         }
       });

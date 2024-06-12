@@ -15,7 +15,7 @@ const registrationValidation = [
 
   // Password needs to be min 8 chars and follows security guideline
   body('password').isStrongPassword().withMessage("Password must be at least 8 characters long, and a combination of upper and lowercase characters, numbers and symbols.")
-  .isLength({max: 16}).withMessage("Password length should be up to 16 characters"),
+  .isLength({max: 60}).withMessage("Password length should be up to 60 characters"),
 
   // Confirm Password needs to be min 6 chars AND must match the req.body.password field
   body('confirmPass').isStrongPassword().custom((value, { req }) => {

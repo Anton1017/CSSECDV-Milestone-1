@@ -3,7 +3,7 @@ const { RateLimiterMemory } = require("rate-limiter-flexible");
 
 const prisma = new PrismaClient()
 
-const { validationResult,body } = require('express-validator');
+const { validationResult, body } = require('express-validator');
 const bcrypt = require('bcryptjs');
 
 const opts = {
@@ -13,22 +13,7 @@ const opts = {
 };
 
 const rateLimiter = new RateLimiterMemory(opts);
-
-
-// body('email')
-// .isEmail().withMessage('Enter a valid email address.')
-// .matches(/^[a-zA-Z\d]+([_.-][a-zA-Z\d]+)*@[a-zA-Z\d]+[a-zA-Z\d\-]*(?<!-)(\.(?!-)(?=.*[A-Za-z].*[A-Za-z])[a-zA-Z\d\-]{2,}(?<!-))+$/).withMessage('Invalid email format.'),
-// body('contact_number')
-// .matches(/^\+63\d{10}$|^09\d{9}$/).withMessage('Phone number must either be +63 XXX XXX XXXX or 09XX XXX XXXX.'),
 exports.registerUser = [
-  // Add express-validator middleware for server-side validation
-  body('email')
-  .isEmail().withMessage('Enter a valid email address.')
-  .matches(/^[a-zA-Z\d]+([_.-][a-zA-Z\d]+)*@[a-zA-Z\d]+[a-zA-Z\d\-]*(?<!-)(\.(?!-)(?=.*[A-Za-z].*[A-Za-z])[a-zA-Z\d\-]{2,}(?<!-))+$/).withMessage('Invalid email format.'),
-  
-  body('contact_number')
-  .matches(/^\+63\d{10}$|^09\d{9}$/).withMessage('Phone number format must be "+63 XXX XXX XXXX" or "09XX XXX XXXX"'),
-
   async (req, res) => {
     const errors = validationResult(req);
 

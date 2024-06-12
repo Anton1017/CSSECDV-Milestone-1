@@ -104,5 +104,5 @@ app.use('/', authRouter); // Use the routes var to process registration/login
 // });
 
 https.createServer(options, app).listen(PORT, () => {
-  console.log("Server is running at: " + "http://" + HOSTNAME + ":" + PORT);
+  console.log("Server is running at: " + "https://" + HOSTNAME + ":" + PORT);
 });

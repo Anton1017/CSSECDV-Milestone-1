@@ -38,7 +38,7 @@ exports.registerUser = [
       return res.redirect('/signup');
     }
 
-    const { username, email, password, full_name, contact_number } = req.body;
+    const { username, email, password, full_name, contact_number, imageContent } = req.body;
     const results = await prisma.users.findUnique({
       where: { Username: username },
     });
@@ -61,7 +61,7 @@ exports.registerUser = [
           Password: hashedPassword,
           PasswordSalt: salt,
           ContactNumber: contact_number,
-          ProfileImg: "profile.img",
+          ProfileImg: imageContent,
           FullName: full_name,
         },
       });

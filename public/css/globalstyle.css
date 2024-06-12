@@ -124,6 +124,34 @@ img {
 	width: 80%;
 }
 
+.format_center_2 {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	width: 38%;
+}
+
+.flexbox_signup {
+	display: flex;
+	flex-wrap: wrap;
+	align-content: space-between;
+	margin-bottom: 15px;
+}
+
+.signup_item {
+	display: flex;
+	flex-direction: column;
+	width: 50%;
+	height: 60px;
+}
+
+.signup_item_2 {
+	display: flex;
+	flex-direction: column;
+	width: 50%;
+	height: 75px;
+}
+
 .login_text {
 	/*letter-spacing: 3px;*/
 	font-size: 15px;
@@ -212,6 +240,20 @@ b{
 	margin-bottom: 0px;
 	background-color: white;
 	border-radius: 20px;
+	box-shadow: 5px 6px 20px black;
+}
+
+.signup_content {
+	margin: auto;
+	padding: 50px;
+	padding-top: 30px;
+	padding-bottom: 25px;
+	height: auto;
+	max-width: 850px;
+	margin-bottom: 0px;
+	background-color: white;
+	border-radius: 20px;
+	box-shadow: 5px 6px 20px black;
 }
 
 .main_container {

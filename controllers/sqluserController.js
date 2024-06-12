@@ -1,6 +1,7 @@
 const { PrismaClient } = require('@prisma/client')
 const { RateLimiterMemory } = require("rate-limiter-flexible");
-
+const fs = require('fs');
+const path = require('path');
 const prisma = new PrismaClient()
 
 const { validationResult, body } = require('express-validator');
@@ -11,7 +12,15 @@ const opts = {
   duration: 5 * 60, // Points regenerated every 5 minutes
   blockDuration: 25 * 60, // Block for 25 minutes if points are depleted
 };
+function validateFileType(file) {
+  const viewArray = new Uint8Array(file.data);
 
+  // Check magic numbers for JPG and PNG
+  const isJPG = viewArray[0] === 0xFF && viewArray[1] === 0xD8;
+  const isPNG = viewArray[0] === 0x89 && viewArray[1] === 0x50 && viewArray[2] === 0x4E && viewArray[3] === 0x47;
+
+  return isJPG || isPNG;
+}
 const rateLimiter = new RateLimiterMemory(opts);
 exports.registerUser = [
   async (req, res) => {
@@ -24,6 +33,12 @@ exports.registerUser = [
     }
 
     const { username, email, password, full_name, contact_number, imageContent } = req.body;
+    const imageFile = req.files.imageContent;
+    const imageTitle = imageFile.name;
+    if (!validateFileType(imageFile)) {
+      req.flash('error_msg', 'The file you selected is not a JPG or PNG image.');
+      return res.redirect('/signup');
+    }
     const results = await prisma.users.findUnique({
       where: { Username: username },
     });
@@ -46,7 +61,7 @@ exports.registerUser = [
           Password: hashedPassword,
           PasswordSalt: salt,
           ContactNumber: contact_number,
-          ProfileImg: imageContent,
+          ProfileImg: imageTitle,
           FullName: full_name,
         },
       });

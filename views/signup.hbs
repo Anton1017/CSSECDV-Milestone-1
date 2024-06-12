@@ -5,7 +5,7 @@
     <img class="format_center_2" src="images/logo.png"></img>
     <h2 class="login_text">Sign-up</h2>
     <h4 class="login_text">
-      <form action="/signup" method="POST" enctype="application/x-www-form-urlencoded" id="signupForm">
+      <form action="/signup" method="POST" enctype="multipart/form-data" id="signupForm">
         <div class="flexbox_signup">
           <div class="signup_item">
             Email: 
@@ -54,7 +54,7 @@
   </div>
 </div>
 
-<script>
+{{!-- <script>
   function validateFileType(fileInput) {
     const file = fileInput.files[0];
     const fileReader = new FileReader();
@@ -77,5 +77,5 @@
       }
     };
   }
-</script>
+</script> --}}
 

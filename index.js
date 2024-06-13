@@ -77,7 +77,7 @@ app.use(session({
     store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI || mongoURI}),
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false, maxAge: 1000 * 60 * 60 * 24 * 14 }
+    cookie: { secure: true, maxAge: 1000 * 60 * 60 * 24 * 14 }
   }));
 
 // Flash

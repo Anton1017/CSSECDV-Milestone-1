@@ -12,7 +12,7 @@ const registrationValidation = [
   // .isEmail().withMessage("Please provide a valid email.")
   .matches(/^[a-zA-Z\d]+([_.-][a-zA-Z\d]+)*@[a-zA-Z\d]+[a-zA-Z\d\-]*(?<!-)(\.(?!-)(?=.*[A-Za-z].*[A-Za-z])[a-zA-Z\d\-]{2,}(?<!-))+$/).withMessage('Please provide a valid email.'),
   
-  body('full_name').not().isEmpty().withMessage("Full name is required.")
+  body('full_name').not().isEmpty().withMessage("Please place proper full name")
   .matches(/^[^'"]*$/).withMessage("Please enter your full name"),
 
   body('contact_number').not().isEmpty().withMessage("Contact Number is required.")

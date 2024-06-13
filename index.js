@@ -30,9 +30,9 @@ const routes = require('./routes/routes.js');
 const authRouter = require('./routes/auth');
 
 // Using db functions
-const db = require('./models/db.js');
+// const db = require('./models/db.js');
 
-db.connect();
+// db.connect();
 
 /********* Using initializations **********/
 

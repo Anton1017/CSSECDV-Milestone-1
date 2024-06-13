@@ -74,7 +74,7 @@ const options = {
 // Sessions
 app.use(session({
     secret: process.env.SESSION_SECRET,
-    store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI || mongoURI}),
+    //store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI || mongoURI}),
     resave: false,
     saveUninitialized: true,
     cookie: { secure: true, maxAge: 1000 * 60 * 60 * 24 * 14 }

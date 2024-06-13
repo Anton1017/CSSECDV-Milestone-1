@@ -12,7 +12,7 @@ const opts = {
   duration: 5 * 60, // Points regenerated every 5 minutes
   blockDuration: 25 * 60, // Block for 25 minutes if points are depleted
 };
-
+//Function checks if the file is an actual JPEG or PNG
 function validateFileType(file) {
   const viewArray = new Uint8Array(file.data);
 

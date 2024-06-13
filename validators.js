@@ -11,10 +11,10 @@ const registrationValidation = [
   body('email').not().isEmpty().withMessage("Email is required.")
   // .isEmail().withMessage("Please provide a valid email.")
   .matches(/^[a-zA-Z\d]+([_.-][a-zA-Z\d]+)*@[a-zA-Z\d]+[a-zA-Z\d\-]*(?<!-)(\.(?!-)(?=.*[A-Za-z].*[A-Za-z])[a-zA-Z\d\-]{2,}(?<!-))+$/).withMessage('Please provide a valid email.'),
-  
+  //Full name should not be empty and not contain single or double quotation
   body('full_name').not().isEmpty().withMessage("Please place proper full name")
   .matches(/^[^'"]*$/).withMessage("Please enter your full name"),
-
+  //contact number should either be "+63 XXX XXX XXXX" or "09XX XXX XXXX"
   body('contact_number').not().isEmpty().withMessage("Contact Number is required.")
   .matches(/^\+63\d{10}$|^09\d{9}$/).withMessage('Phone number format must be "+63 XXX XXX XXXX" or "09XX XXX XXXX"'),
 

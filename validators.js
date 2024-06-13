@@ -3,8 +3,9 @@ const { body } = require('express-validator');
 const registrationValidation = [
 
     // Uname should not be empty
-  body('username').not().isEmpty().withMessage("Username is required.").isLength( {min: 3, max: 16} ).withMessage("Username must be between 3 and 16 characters."),
-  
+  body('username').not().isEmpty().withMessage("Username is required.")
+  .isLength( {min: 3, max: 16} ).withMessage("Username must be between 3 and 16 characters.")
+  .matches(/^[^'"]*$/).withMessage("Place a proper username"),
   // Email should not be empty and must be a valid email
   body('email').not().isEmpty().withMessage("Email is required.")
   // .isEmail().withMessage("Please provide a valid email.")

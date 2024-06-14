@@ -11,7 +11,7 @@ Animatrix is an online anime discussion forum web application initially created 
 ```
 3. Configure the localhost MySQL database by setting a root account for it as well as the password
 4. Use your own database access credentials ("DATABASE_URL") within the .env file using the format "mysql://username:password@localhost:3306/animatrix"
-5. Run the following code for within the root directory for mapping the data model into your database
+5. Run the following code within the root directory for mapping the data model into your database
 ```bash
 npx prisma migrate dev --name init
 ```

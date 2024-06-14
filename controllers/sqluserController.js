@@ -4,6 +4,11 @@ const fs = require('fs');
 const path = require('path');
 const prisma = new PrismaClient()
 
+const { 
+  v1: uuidv1,
+  v4: uuidv4,
+} = require('uuid');
+
 const { validationResult, body } = require('express-validator');
 const bcrypt = require('bcryptjs');
 
@@ -34,18 +39,7 @@ exports.registerUser = [
       return res.redirect('/signup');
     }
 
-    const { username, email, password, full_name, contact_number, imageContent } = req.body;
-
-    const form_files = req.files;
-    
-    if(form_files != null && "imageContent" in form_files){
-      const imageFile = req.files.imageContent;
-
-      if (!validateFileType(imageFile)) {
-        req.flash('error_msg', 'The file you selected is not a JPG or PNG image.');
-        return res.redirect('/signup');
-      }
-    }
+    const { username, email, password, full_name, contact_number, imageContent } = req.body;  
 
     const results = await prisma.users.findUnique({
       where: { Username: username },
@@ -59,6 +53,34 @@ exports.registerUser = [
     const saltRounds = 10;
 
     try {
+      const form_files = req.files;
+      let image = null;
+      let newname = null;
+
+      if(form_files != null && "imageContent" in form_files){
+        const imageFile = req.files.imageContent;
+
+        image = imageFile;
+        newname = uuidv1() + path.extname(image.name);
+
+        if (!validateFileType(imageFile)) {
+          req.flash('error_msg', 'The file you selected is not a JPG or PNG image.');
+          return res.redirect('/signup');
+        } else {
+          fs.stat('./public/images/' + newname, function(err, data){
+              if(err){
+                  image.name = newname;
+              }
+          });
+          image.mv(path.resolve('./public/images', newname), (error) => {
+              if(error){
+                req.flash('error_msg', 'Error on image upload.');
+                return res.redirect('/signup');
+              }
+          });
+        }
+      }
+
       const salt = await bcrypt.genSalt(saltRounds);
       const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -69,7 +91,7 @@ exports.registerUser = [
           Password: hashedPassword,
           PasswordSalt: salt,
           ContactNumber: contact_number,
-          ProfileImg: (form_files != null && "imageContent" in form_files) ? form_files.imageContent.name : "generic_profile_pic.png",
+          ProfileImg: (form_files != null && "imageContent" in form_files) ? '/images/' + newname : "/images/generic_profile_pic.png",
           FullName: full_name,
         },
       });
@@ -86,7 +108,7 @@ exports.registerUser = [
 
 exports.loginUser = async (req, res) => {
  
-  rateLimiter.consume(req.connection.remoteAddress) // consume 2 points
+  rateLimiter.consume(req.connection.remoteAddress)
   .then(async (rateLimiterRes) => {
     // 1 points consumed
     const errors = validationResult(req);

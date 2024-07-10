@@ -140,11 +140,13 @@ exports.loginUser = async (req, res) => {
           req.flash('error_msg', 'Login successful.');
           if (user.IsAdmin == 1)
           {
-            return res.redirect('/admin-home');
+            console.log("Went to home");
+            return res.redirect('/home-page');
           }
           else if (user.IsAdmin == 0)
           {
-            return res.redirect('/user-home');
+            console.log("Went to home");
+            return res.redirect('/home-page');
           }
           //return res.redirect('/login');
         } else {

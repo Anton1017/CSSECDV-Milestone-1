@@ -1,3 +1,10 @@
+<div class="user-greeting">
+  {{#if isAdmin}}
+    <h2>Hello, admin {{username}}</h2>
+  {{else}}
+    <h2>Hello, regular user {{username}}</h2>
+  {{/if}}
+</div>
 <div class="main_content">
 	<h1>
 		Create Post
@@ -14,85 +21,49 @@
 </div>
 
 <div class="post-thread">
+	Click on thread to view post<br>
 	<h1>
-		Latest Post
+		Pinned Posts
 	</h1><br>
-	Click on thread to view post
+	
+	{{#each posts}}
+		{{#if this.IsPinned}}
+    		{{#unless this.IsDeleted}}
+      			{{> post this}}
+				{{#if ../isAdmin}}
+                    <form action="/admin/unpin-post" method="post">
+                        <input type="hidden" name="postId" value="{{this.PostID}}">
+                        <button type="submit">Unpin</button>
+                    </form>
+                    <form action="/admin/delete-post" method="post">
+                        <input type="hidden" name="postId" value="{{this.PostID}}">
+                        <button type="submit">Delete</button>
+                    </form>
+                {{/if}}
+    		{{/unless}}
+		{{/if}}
+  	{{/each}}
+
+	<br>
+	<h1>
+		Latest Posts
+	</h1><br>
 
 	{{#each posts}}
-		{{> post this}}
-	{{/each }}
-	
-	<!--
-	<div class="post-entry" onclick="location.href='view_post.html';">
-		<div class="comment-likedate-container">
-			<img class="normal-like-button" src="images/like.png">
-			<h2 class="normal-like-count">1246</h2>
-			<h5 class="thread-title">Spy X Family Reaction Episode 1<h5>
-			<p class="post-poster-time">posted by: username123 | 8 hours ago<p>
-		</div>
-		<p class="text-post">
-			10 comments
-		</p>
-	</div>
-	<div class="post-entry" onclick="location.href='view_post2.html';">
-		<div class="comment-likedate-container">
-			<img class="normal-like-button" src="images/like.png">
-			<h2 class="normal-like-count">1116</h2>
-			<h6 class="thread-title">Kratos Cosplay by: Tyler1<h6>
-			<p class="post-poster-time">posted by: buffdraven11 | 12 hours ago<p>
-		</div>
-		<p class="text-post">
-			5 comments
-		</p>
-	</div>
-	<div class="post-entry">
-		<div class="comment-likedate-container">
-			<img class="normal-like-button" src="images/like.png">
-			<h2 class="normal-like-count">124</h2>
-			<h6 class="thread-title">Kaguya-sama S3 Episode 3 Discussion Thread<h6>
-			<p class="post-poster-time">posted by: okawaiikoto | 22 hours ago<p>
-		</div>
-		<p class="text-post">
-			2311 comments <a href="view_post.html"></a>
-		</p>
-	</div>
-	<div class="post-entry">
-		<div class="comment-likedate-container">
-			<img class="normal-like-button" src="images/like.png">
-			<h2 class="normal-like-count">984</h2>
-			<h6 class="thread-title">Looking for anime recommendations<h6>
-			<p class="post-poster-time"> posted by: normie456 | 12 days ago<p>
-		</div>
-		<p class="text-post">
-			127 comments <a href="view_post.html"></a>
-		</p>
-	</div>
-	<div class="post-entry">
-		<div class="comment-likedate-container">
-			<img class="normal-like-button" src="images/like.png">
-			<h2 class="normal-like-count">71</h2>
-			<h6 class="thread-title">Mushoku Tensei was so good...<h6>
-			<p class="post-poster-time"> posted by: erisssama | 1 month ago<p>
-		</div>
-		<p class="text-post">
-			42 comments <a href="view_post.html"></a>
-		</p>
-	</div>
-	<div class="post-entry">
-		<div class="comment-likedate-container">
-			<img class="normal-like-button" src="images/like.png">
-			<h2 class="normal-like-count">65</h2>
-			<h6 class="thread-title">Where to buy anime merch?<h6>
-			<p class="post-poster-time"> posted by: helpme444 | 5 months ago<p>
-		</div>
-		<p class="text-post">
-			11 comments <a href="view_post.html"></a>
-		</p>
-	</div>
-	<div class="view-more">
-		<h2>View More</h2>
-	</div>
-
-	-->
+    	{{#unless this.IsDeleted}}
+			{{#unless this.IsPinned}}
+      			{{> post this}}
+				{{#if ../isAdmin}}
+                    <form action="/admin/pin-post" method="post">
+                        <input type="hidden" name="postId" value="{{this.PostID}}">
+                        <button type="submit">Pin</button>
+                    </form>
+                    <form action="/admin/delete-post" method="post">
+                        <input type="hidden" name="postId" value="{{this.PostID}}">
+                        <button type="submit">Delete</button>
+                    </form>
+                {{/if}}
+    		{{/unless}}
+    	{{/unless}}
+  	{{/each}}
 </div>

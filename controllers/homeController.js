@@ -1,3 +1,6 @@
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+
 const db = require('../models/db.js');
 const Post = require('../models/Post.js');
 const Profile = require('../models/Profile.js');
@@ -17,55 +20,98 @@ const { profile } = require('console');
 
 const homeController = {
     //to submit a post
-    submitPost: (req, res) => {
+    submitPost: async (req, res) => {
         const errors = validationResult(req);
-        //console.log("errors: " + errors)
         
-        if (!errors.isEmpty())
-        {
+        if (!errors.isEmpty()) {
             const messages = errors.array().map((item) => item.msg);
-
             req.flash('error_msg', messages.join(' '));
             res.redirect('/');
-        }
-        else
-        {
-            if(req.files != null){
-                const image = req.files.imageContent
-                //console.log(image);
-                let newname = uuidv1() + path.extname(image.name);
-                fs.stat('./public/images/' + newname, function(err, data){
-                    if(err){
-                        image.name = newname;
+        } else {
+            try {
+                let ImageContent = null;
+                if (req.files && req.files.imageContent) {
+                    const image = req.files.imageContent;
+                    let newname = uuidv1() + path.extname(image.name);
+                    await image.mv(path.resolve('./public/images', newname));
+                    ImageContent = '/images/' + newname;
+                }
+
+                await prisma.posts.create({
+                    data: {
+                        Title: req.body.title,
+                        TextContent: req.body.textContent || "(Empty post body)",
+                        ImageContent,
+                        UserID: req.session.user
                     }
                 });
-                    
-                //console.log(req.files.imageContent)
-                //console.log(path.resolve('./public/images', newname));
-                image.mv(path.resolve('./public/images', newname), (error) => {
-                    Post.create({
-                        title: req.body.title,
-                        textContent: req.body.textContent || "(Empty post body)",
-                        imageContent: '/images/' + newname,
-                        username: req.session.username
-                    },  (error, post) => {
-                        //console.log("on post creation: " + post._id);
-                        res.redirect('/');
-                    })
-                });
-            } 
-            else{
-                Post.create({
-                    title: req.body.title,
-                    textContent: req.body.textContent || "(Empty post body)",
-                    username: req.session.username,
-                },  (error, post) => {
-                    //console.log("on post creation: " + post._id);
-                    res.redirect('/');
-                })
-            }
 
+                res.redirect('/');
+            } catch (error) {
+                console.error("Error in submitPost:", error);
+                res.status(500).send("An error occurred while submitting the post");
+            }
         }
+    },
+
+    //to delete a post via admin
+    adminDeletePost: async (req, res) => {
+        console.log("We're at adminDeletePost");
+        const { postId } = req.body;
+        if (req.session.isAdmin){
+            try {
+                await prisma.posts.update({
+                    where: { PostID: postId },
+                    data: { IsDeleted: true },
+                });
+                res.redirect('/');
+            } catch (error) {
+                console.error(error);
+                res.status(500).send('Error deleting post');
+            }   
+        }
+        else
+            res.status(403).send('Unauthorized');
+    },
+
+    //to pin a post via admin
+    adminPinPost: async (req, res) => {
+        console.log("We're at adminPinPost");
+        const { postId } = req.body;
+        if (req.session.isAdmin){
+            try {
+                await prisma.posts.update({
+                  where: { PostID: postId },
+                  data: { IsPinned: true },
+                });
+                res.redirect('/');
+            } catch (error) {
+                console.error(error);
+                res.status(500).send('Error pinning post');
+            }
+        }
+        else
+            res.status(403).send('Unauthorized');
+    },
+
+    //to unpin a post via admin
+    adminUnpinPost: async (req, res) => {
+        console.log("We're at adminUnpinPost");
+        const { postId } = req.body;
+        if (req.session.isAdmin){
+            try {
+                await prisma.posts.update({
+                  where: { PostID: postId },
+                  data: { IsPinned: false },
+                });
+                res.redirect('/');
+            } catch (error) {
+                console.error(error);
+                res.status(500).send('Error unpinning post');
+            }
+        }
+        else
+            res.status(403).send('Unauthorized');
     },
 
     //submit a comment for the post

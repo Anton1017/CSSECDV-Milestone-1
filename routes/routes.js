@@ -34,6 +34,12 @@ router.get('/like-comment', isPrivate, controller.likeComment);
 
 router.post('/submit-post', isPrivate, postValidation, homeController.submitPost);
 
+router.post('/admin/delete-post', isPrivate, homeController.adminDeletePost);
+
+router.post('/admin/pin-post', isPrivate, homeController.adminPinPost);
+
+router.post('/admin/unpin-post', isPrivate, homeController.adminUnpinPost);
+
 router.post('/comment-post', isPrivate, homeController.submitComment);
 
 router.post('/save-editprofile', isPrivate, homeController.editProfile); 

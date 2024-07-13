@@ -2,11 +2,11 @@
 	<!--<input type="hidden" class="post-like" name="_id" value="{{_id}}"/>-->
 	<button type="submit" class="post-entry">
 			<div class="comment-likedate-container">
-				<input type="hidden" class="post-like" name="_id" value="{{_id}}"/>
+				<input type="hidden" class="post-like" name="_id" value="{{this.PostID}}"/>
 				<img class="post-like-button" src="../public/images/like.png" alt="like button">
 				<h2 class="normal-like-count"> {{ likesBy.length }} </h2>
-				<h5 class="thread-title"> {{ title }} <h5>
-				<p class="post-poster-time">posted by: {{ username }} | {{ postingTime }}<p>
+				<h5 class="thread-title"> {{ this.title }} <h5>
+				<p class="post-poster-time">posted by: {{ username }} | {{ TimePosted }}<p>
 			</div>
 			<p class="text-post">
 				{{ numComments }} comment(s)

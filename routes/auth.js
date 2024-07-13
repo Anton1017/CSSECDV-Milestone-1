@@ -27,6 +27,6 @@ router.post('/test-login', sqluserController.loginUser);
 router.get('/admin-home', isPublic, controller.getAdminHome);
 router.get('/user-home', isPublic, controller.getUserHome);
 
-router.get('/home-page', isPublic, controller.getHome);
+router.get('/home-page', isPublic, controller.getPosts);
 
 module.exports = router;

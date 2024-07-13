@@ -133,19 +133,20 @@ exports.loginUser = async (req, res) => {
         // passwords match (result == true)
         if (result) {
           // Update session object once matched!
-          // req.session.user = user.UsersID;
-          // req.session.username = user.Username;
+          req.session.user = user.UsersID;
+          req.session.username = user.Username;
+          req.session.isAdmin = user.IsAdmin;
           // console.log("Login Success");
-          // console.log(req.session);
+          console.log(req.session);
           req.flash('error_msg', 'Login successful.');
           if (user.IsAdmin == 1)
           {
-            console.log("Went to home");
+            console.log("Went to home (admin)");
             return res.redirect('/home-page');
           }
           else if (user.IsAdmin == 0)
           {
-            console.log("Went to home");
+            console.log("Went to home (regular)");
             return res.redirect('/home-page');
           }
           //return res.redirect('/login');

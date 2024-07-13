@@ -1,8 +1,12 @@
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+
 const db = require('../models/db.js');
 const Post = require('../models/Post.js');
 const Comment = require('../models/Comment.js');
 const Profile = require('../models/Profile.js');
 const User = require('../models/User.js');
+
 
 const moment = require('moment');
 var path = require('path');
@@ -48,7 +52,7 @@ const controller = {
     getHome: (req, res) => {
         res.render('home', {
             pageTitle: 'Home',
-            layout: 'index'
+            layout: 'main'
         });
     },
 
@@ -65,26 +69,47 @@ const controller = {
     },
 
     // Display home page
-    getPosts: (req,res) => {
-        db.findMany(Post, {}, '', function (posts){
-            //console.log(posts);
-            posts = posts.map(posts => posts.toJSON()); //formats 'posts' to JSON to remove mongoose schema formatting to edit the date on the next step
-            posts.forEach(element => { //uses the moments module to format the date
-                element.postingTime = moment(element.postingTime).fromNow();
+    getPosts: async (req,res) => {
+        console.log("We're at getPosts");
+        //console.log(req.session);
+        try {
+            // Fetch all posts
+            let posts = await prisma.posts.findMany({
+                orderBy: {
+                    TimePosted: 'desc'
+                }
             });
-            posts = posts.reverse();
-            //req.session.destroy();
-            db.findOne(Profile, { username: req.session.username }, '', (header) =>{ //profile pic query
-                res.render('home', { 
-                    posts,
-                    username: req.session.username,
-                    headerProfileImg: header.profileImg,
-                    pageTitle: 'Home', 
-                    name: req.session.name,
-                    layout: 'main' } );
-            })
-            //console.log(posts);
-    });
+    
+            // Format the posts
+            posts = posts.map(post => ({
+                ...post,
+                TimePosted: moment(post.TimePosted).fromNow()
+            }));
+    
+            // Fetch the user's profile
+            const header = await prisma.users.findUnique({
+                where: {
+                    Username: req.session.username
+                }
+            });
+            
+            console.log(posts);
+            // Render the home page
+            res.render('home', { 
+                posts,
+                username: req.session.username,
+                userID: req.session.userID,
+                headerProfileImg: header?.profileImg,
+                pageTitle: 'Home', 
+                name: req.session.name,
+                isAdmin: req.session.isAdmin,
+                layout: 'main'
+            });
+    
+        } catch (error) {
+            console.error("Error in getPosts:", error);
+            res.status(500).send("An error occurred while fetching posts");
+        }
     },
 
     // Display view profile page
@@ -151,41 +176,54 @@ const controller = {
         })
     },
 
-    getViewPost: (req, res) => {
-       
-        //console.log("getViewPost req.query._id: " + req.query._id);
-        db.findOne(Post, {_id: req.query._id}, '', function (post){
-            //console.log("req.query._id again: " + req.query._id);
-            //console.log("Printing the post: " + post);
-            post = post.toJSON();
-            post.postingTime = moment(post.postingTime).fromNow();
-            db.findMany(Comment, {postid: req.query._id}, '', function (comments){
-                db.updateOne(Post, {_id: req.query._id}, { $set: {numComments: comments.length} }, (err, res) => {
-                    //console.log(res)
-                }) //updates number of comments
-                comments = comments.map(comments => comments.toJSON());
-                comments.forEach(element => {
-                    element.postingTime = moment(element.postingTime).fromNow();
-                    element.isOwnComment = req.session.username === element.username
-                });
-                comments = comments.reverse();
-                db.findOne(Profile, { username: req.session.username }, 'profileImg', (header) =>{ //profile pic query
-                    res.render('view_post', { 
-                        post,
-                        comments,
-                        username: req.session.username,
-                        headerProfileImg: header.profileImg,
-                        pageTitle: 'View Post', 
-                        name: req.session.name,
-                        layout: 'main', 
-                        _id: req.query._id,
-                        isOwnPost: (req.session.username === post.username)
-                        
-                    });
-                }) 
-            })
- 
-        })
+    getViewPost: async (req, res) => {
+        try {
+            console.log(req.query._id);
+            const post = await prisma.posts.findUnique({
+                where: { PostID: req.query._id }
+            });
+            console.log(post);
+            if(post.IsDeleted){
+                return res.redirect('/home-page');
+            }
+            post.TimePosted = moment(post.TimePosted).fromNow();
+
+            const comments = await prisma.postcomments.findMany({
+                where: { PostID: req.query._id },
+                orderBy: { TimeCommented: 'desc' }
+            });
+
+            /*await prisma.posts.update({
+                where: { PostID: req.query._id },
+                data: { NumComments: comments.length }
+            });*/
+
+            const formattedComments = comments.map(comment => ({
+                ...comment,
+                timeCommented: moment(comment.TimeCommented).fromNow(),
+                isOwnComment: req.session.username === comment.CommenterID
+            }));
+
+            const header = await prisma.users.findUnique({
+                where: { Username: req.session.username },
+                select: { ProfileImg: true }
+            });
+
+            res.render('view_post', { 
+                post,
+                comments: formattedComments,
+                username: req.session.username,
+                headerProfileImg: header?.ProfileImg,
+                pageTitle: 'View Post', 
+                name: req.session.name,
+                layout: 'main', 
+                _id: req.query._id,
+                isOwnPost: (req.session.userID === post.UserID)
+            });
+        } catch (error) {
+            console.error("Error in getViewPost:", error);
+            res.status(500).send("An error occurred while fetching post");
+        }
     },
 
 
@@ -259,12 +297,12 @@ const controller = {
         let user_name = {
             username: new RegExp(req.query.text, "ig")
         }
-        db.findMany(Post, postTitle, 'title _id postingTime', function(posts){
+        db.findMany(Post, postTitle, 'title _id TimePosted', function(posts){
             //console.log("posts: " + posts);
             posts = posts.map(posts => posts.toJSON());
             posts.forEach(element => {
                 element.contentType = 'post';
-                element.postingTime = moment(element.postingTime).fromNow();
+                element.TimePosted = moment(element.TimePosted).fromNow();
             })
             Array.prototype.push.apply(returnArray, posts);
             //console.log("returnArray: " + returnArray);
@@ -284,23 +322,3 @@ const controller = {
 }
 
 module.exports = controller;
-/*
-db.findMany(Comment, {postid: post._id}, '', function (comments){
-    //console.log(comments)
-    comments = comments.map(comments => comments.toJSON());
-    comments.forEach(element => {
-        element.postTime = moment(element.postTime).fromNow();
-    })
-console.log(post);
-    db.findOne(Profile, { username: req.session.username }, 'profileImg', (header) =>{ //profile pic query
-        res.render('view_post', { 
-            post,
-            comments,
-            username: req.session.username,
-            profileImg: header.profileImg,
-            pageTitle: 'View Post', 
-            name: req.session.name,
-            layout: 'main' 
-        });
-    })
-}) */

@@ -2,7 +2,11 @@ const router = require('express').Router();
 const userController = require('../controllers/userController');
 const controller = require('../controllers/controller');
 const { registrationValidation, loginValidation } = require('../validators.js');
+
+// middlewares
 const { isPublic, isPrivate } = require('../middlewares/checkAuth');
+const logMiddleware = require('../middlewares/loggingBase');
+
 const express = require('express');
 
 const sqluserController = require('../controllers/sqluserController.js')
@@ -13,8 +17,8 @@ router.get('/login', isPublic, controller.getLogin);
 router.get('/signup', isPublic, controller.getSignup);
 
 // POST methods for form submissions
-router.post('/signup', isPublic, registrationValidation, sqluserController.registerUser);
-router.post('/login', isPublic, loginValidation, sqluserController.loginUser);
+router.post('/signup', isPublic, registrationValidation, logMiddleware, sqluserController.registerUser);
+router.post('/login', isPublic, loginValidation, logMiddleware, sqluserController.loginUser);
 
 // logout
 router.get('/logout', isPrivate, userController.logoutUser);

@@ -5,7 +5,7 @@ const express = require('express');
 
 const fs = require('fs');
 const https = require('https');
-const session = require('express-session');
+
 const exphbs = require('express-handlebars');
 const flash = require('connect-flash');
 const MongoStore = require('connect-mongo');
@@ -29,6 +29,9 @@ const multer = require('multer');
 const routes = require('./routes/routes.js');
 const authRouter = require('./routes/auth');
 
+
+// sessions 
+const session = require("./middlewares/sessions.js")
 // Using db functions
 // const db = require('./models/db.js');
 
@@ -72,13 +75,7 @@ const options = {
 };
 
 // Sessions
-app.use(session({
-    secret: process.env.SESSION_SECRET,
-    //store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI || mongoURI}),
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: true, maxAge: 1000 * 60 * 60 * 24 * 14 }
-  }));
+app.use(session);
 
 // Flash
 app.use(flash());

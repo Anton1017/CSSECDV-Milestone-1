@@ -4,6 +4,7 @@ const path = require('path');
 // Define the log file path
 const logFilePath = path.join(__dirname, '..', 'logs', 'user-actions.log');
 const errorLogFilePath = path.join(__dirname, '..', 'logs', 'errors.log');
+const defaultMsg = "N/A"
 
 // Queue to hold log messages
 let logQueue = [];
@@ -65,10 +66,13 @@ function logErrorMessage(message) {
 function logMiddleware(req, res, next) {
   res.on('finish', () => {
     const user = req.session && req.session.user && req.session.user.username ? req.session.user.username : 'Guest';
-    const statusMsg = res.locals.logMessage || "N/A"
-    const message = `IP: ${req.ip}, User: ${user}, Method: ${req.method}, URL: ${req.url}, Message: ${statusMsg}`;
-    console.log(res.locals)
-    logMessage(message);
+    const statusMsg = res.locals.logMessage || defaultMsg
+    // if status message is different from default message, assume to be logged
+    if(statusMsg.localeCompare(defaultMsg) != 0){
+      const message = `IP: ${req.ip}, User: ${user}, Method: ${req.method}, URL: ${req.url}, Message: ${statusMsg}`;
+      console.log(res.locals)
+      logMessage(message);
+    }
   });
   next();
 }

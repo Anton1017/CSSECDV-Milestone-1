@@ -177,7 +177,10 @@ exports.loginUser = async (req, res) => {
   .catch((rateLimiterRes) => {
     // Not enough points to consume
     req.flash('error_msg', 'You have exceeded the login attempts. Please come back later.');
-    res.locals.logMessage = 'Too many login attempts'
+    // Do not log too many to avoid unrestricted/spammed logging for DDOS attacks
+    if (rateLimiterRes.isFirstInDuration){
+      res.locals.logMessage = 'Too many login attempts'
+    }
     return res.redirect('/login');
   });
 

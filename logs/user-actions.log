@@ -1,0 +1,4 @@
+2024-07-15T12:32:32.335Z - IP: ::1, User: Guest, Method: POST, URL: /login, Message: Login successful (userID: 993c583d-4213-11ef-9583-089798efa348)
+2024-07-15T12:32:34.399Z - IP: ::1, User: Guest, Method: GET, URL: /logout, Message: User logged out (userID: 993c583d-4213-11ef-9583-089798efa348)
+2024-07-15T12:32:35.794Z - IP: ::1, User: Guest, Method: POST, URL: /login, Message: Validation failed
+2024-07-15T12:32:51.137Z - IP: ::1, User: Guest, Method: POST, URL: /signup, Message: Validation failed

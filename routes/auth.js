@@ -21,11 +21,11 @@ router.post('/signup', isPublic, registrationValidation, logMiddleware, sqluserC
 router.post('/login', isPublic, loginValidation, logMiddleware, sqluserController.loginUser);
 
 // logout
-router.get('/logout', isPrivate, userController.logoutUser);
+router.get('/logout', isPrivate, logMiddleware, sqluserController.logoutUser);
 
 //temporary only
-router.post('/test-register', sqluserController.registerUser)
-router.post('/test-login', sqluserController.loginUser);
+// router.post('/test-register', sqluserController.registerUser)
+// router.post('/test-login', sqluserController.loginUser);
 
 //for admin and user view
 router.get('/admin-home', isPublic, controller.getAdminHome);

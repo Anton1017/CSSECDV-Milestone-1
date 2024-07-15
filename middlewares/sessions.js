@@ -1,11 +1,12 @@
 const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
+require('dotenv').config();
 
 const options = {
 	host: 'localhost',
 	port: 3306,
-	user: 'root',
-	password: 'password',
+	user: process.env.DB_HOST,
+	password: process.env.DB_PASS,
 	database: 'animatrix'
 };
 

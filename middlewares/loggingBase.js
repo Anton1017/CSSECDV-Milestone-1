@@ -36,9 +36,13 @@ function logMessage(message) {
 
 // Middleware to log user actions
 function logMiddleware(req, res, next) {
-  const user = req.session && req.session.user ? req.session.user.username : 'Guest';
-  const message = `User: ${user}, Method: ${req.method}, URL: ${req.url}`;
-  logMessage(message);
+  res.on('finish', () => {
+    const user = req.session && req.session.user && req.session.user.username ? req.session.user.username : 'Guest';
+    const statusMsg = res.locals.logMessage || "N/A"
+    const message = `IP: ${req.ip}, User: ${user}, Method: ${req.method}, URL: ${req.url}, Message: ${statusMsg}`;
+    console.log(res.locals)
+    logMessage(message);
+  });
   next();
 }
 

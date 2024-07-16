@@ -164,6 +164,20 @@ const controller = {
         });
              
     },
+    getEditProfile: (req, res) => {
+        db.findOne(Profile, { username: req.session.username }, '', (header) =>{ //profile pic query
+            res.render('edit_profile', { 
+                username: req.session.username,
+                headerProfileImg: header.profileImg,
+                faveCharImg: header.faveCharImg,
+                bio: header.bio,
+                faveQuote: header.faveQuote,
+                pageTitle: 'Edit Profile', 
+                name: req.session.name,
+                layout: 'main' 
+            });
+        })
+    },
 
     getViewPost: async (req, res) => {
         try {

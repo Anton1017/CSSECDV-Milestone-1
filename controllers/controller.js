@@ -77,13 +77,21 @@ const controller = {
             let posts = await prisma.posts.findMany({
                 orderBy: {
                     TimePosted: 'desc'
+                },
+                include: {
+                    users: {
+                        select: {
+                            Username: true
+                        }
+                    }
                 }
             });
     
             // Format the posts
             posts = posts.map(post => ({
                 ...post,
-                TimePosted: moment(post.TimePosted).fromNow()
+                TimePosted: moment(post.TimePosted).fromNow(),
+                Username: post.users.Username 
             }));
     
             // Fetch the user's profile

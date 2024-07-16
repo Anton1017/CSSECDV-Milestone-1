@@ -4,6 +4,7 @@ const controller = require('../controllers/controller.js');
 const homeController = require('../controllers/homeController.js')
 
 const { isPrivate } = require('../middlewares/checkAuth'); //requires users to be logged in to access these pages
+const nocache = require('../middlewares/invalidateCache');
 
 const { postValidation } = require('../validators.js');
 
@@ -15,6 +16,7 @@ const User = require('../models/User.js');
 
 const path = require('path');
 
+router.use(nocache);
 
 router.get('/', isPrivate, controller.getPosts);
 

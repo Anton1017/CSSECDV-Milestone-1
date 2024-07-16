@@ -3,11 +3,15 @@ const userController = require('../controllers/userController');
 const controller = require('../controllers/controller');
 const { registrationValidation, loginValidation } = require('../validators.js');
 
+
 // middlewares
 const { isPublic, isPrivate } = require('../middlewares/checkAuth');
-const logMiddleware = require('../middlewares/loggingBase');
+const { logMiddleware, withErrorHandling } = require('../middlewares/loggingBase');
+const nocache = require('../middlewares/invalidateCache');
 
 const express = require('express');
+
+router.use(nocache);
 
 const sqluserController = require('../controllers/sqluserController.js')
 // GET login to display login page

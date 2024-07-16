@@ -87,4 +87,7 @@ async function withErrorHandling(fn) {
 }
 
 // Export the middleware function
-module.exports = logMiddleware;
+module.exports = { 
+  logMiddleware,
+  withErrorHandling
+};

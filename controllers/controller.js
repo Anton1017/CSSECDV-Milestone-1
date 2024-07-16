@@ -162,54 +162,49 @@ const controller = {
                 });
             }
         });
-            
-        
-       
-        
-    },
-
-    // Display edit profile page
-    getEditProfile: (req, res) => {
-        db.findOne(Profile, { username: req.session.username }, '', (header) =>{ //profile pic query
-            res.render('edit_profile', { 
-                username: req.session.username,
-                headerProfileImg: header.profileImg,
-                faveCharImg: header.faveCharImg,
-                bio: header.bio,
-                faveQuote: header.faveQuote,
-                pageTitle: 'Edit Profile', 
-                name: req.session.name,
-                layout: 'main' 
-            });
-        })
+             
     },
 
     getViewPost: async (req, res) => {
         try {
             console.log(req.query._id);
+
             const post = await prisma.posts.findUnique({
-                where: { PostID: req.query._id }
+                where: { PostID: req.query._id },
+                include: {
+                    users: {
+                        select: {
+                            Username: true
+                        }
+                    }
+                }
             });
+
             console.log(post);
-            if(post.IsDeleted){
+
+            if (post.IsDeleted) {
                 return res.redirect('/home-page');
             }
+
             post.TimePosted = moment(post.TimePosted).fromNow();
 
             const comments = await prisma.postcomments.findMany({
                 where: { PostID: req.query._id },
-                orderBy: { TimeCommented: 'desc' }
+                orderBy: { TimeCommented: 'desc' },
+                include: {
+                    users: {
+                        select: {
+                            Username: true
+                        }
+                    }
+                }
             });
-
-            /*await prisma.posts.update({
-                where: { PostID: req.query._id },
-                data: { NumComments: comments.length }
-            });*/
 
             const formattedComments = comments.map(comment => ({
                 ...comment,
                 timeCommented: moment(comment.TimeCommented).fromNow(),
-                isOwnComment: req.session.username === comment.CommenterID
+                isOwnComment: req.session.username === comment.CommenterID,
+                CommenterUsername: comment.users.Username
             }));
 
             const header = await prisma.users.findUnique({

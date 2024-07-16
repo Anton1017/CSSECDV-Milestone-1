@@ -1,20 +1,20 @@
 <!-- A post{} and comment[] will be passed to this hbs -->
 <div class="main_content">
 		<p class>// <a href="/home">Home</a> > {{ this.title }}</p>
-		<p class="post-poster-time">posted by: <a href="/view-profile?username={{post.username}}"> {{ post.username }} </a> | {{ post.postingTime }}<p>
+		<p class="post-poster-time">posted by: <a href="/view-profile?username={{post.users.Username}}"> {{ post.users.Username }} </a> | {{ post.postingTime }}<p>
 		
 	<div class="post-header">
 		<input type="hidden" class="post-like" name="_id" value="{{_id}}"/>
 		<img class="normal-like-button" src="images/like.png">
 		<h2 class="normal-like-count">{{ post.likesBy.length }}</h2>
 		
-		<h1 class="post-title">&nbsp&nbsp{{ post.title }}</h1>
+		<h1 class="post-title">&nbsp&nbsp{{ post.Title }}</h1>
 		
 		{{#if post.imageContent}}<img class="image-post" src="./{{ post.imageContent }}">{{/if}}
 	</div>
 	
 	<p class="text-post">
-		{{ post.textContent }}
+		{{ post.TextContent }}
 	</p>
 	{{#if this.isOwnPost }}
 		<div class="viewpost-btns">

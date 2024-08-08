@@ -53,7 +53,7 @@ model posts {
   PostID       String         @id @default(dbgenerated("(uuid())")) @db.VarChar(45)
   UserID       String         @db.VarChar(45)
   Title        String         @db.VarChar(45)
-  TextContent  String?        @db.VarChar(45)
+  TextContent  String?        @db.VarChar(500)
   ImageContent String?        @db.VarChar(48)
   NumLikes     Int            @default(0)
   TimePosted   DateTime?      @default(dbgenerated("(now())")) @db.DateTime(0)

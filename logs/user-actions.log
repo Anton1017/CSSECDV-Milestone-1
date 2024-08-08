@@ -7,3 +7,7 @@
 2024-08-08T08:02:13.137Z - IP: ::1, User: Guest, Method: POST, URL: /signup, Message: Validation failed
 2024-08-08T15:41:28.606Z - IP: ::1, User: Guest, Method: POST, URL: /login, Message: Login successful (userID: e49805d1-558c-11ef-aed2-089798efa348)
 2024-08-08T15:46:31.038Z - IP: ::1, User: Guest, Method: POST, URL: /login, Message: Login successful (userID: e49805d1-558c-11ef-aed2-089798efa348)
+2024-08-08T17:00:34.511Z - IP: ::1, User: Guest, Method: POST, URL: /signup, Message: User created
+2024-08-08T17:00:50.072Z - IP: ::1, User: Guest, Method: POST, URL: /login, Message: Login successful (userID: ba495536-55a7-11ef-9553-fa0d5275554b)
+2024-08-08T19:27:46.678Z - IP: ::1, User: Guest, Method: POST, URL: /login, Message: Login successful (userID: John)
+2024-08-08T19:28:35.484Z - IP: ::1, User: Guest, Method: POST, URL: /submit-post, Message: UserID: ba495536-55a7-11ef-9553-fa0d5275554b has an error in submitting a post

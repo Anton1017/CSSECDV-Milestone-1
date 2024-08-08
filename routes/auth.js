@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const userController = require('../controllers/userController');
 const controller = require('../controllers/controller');
+const sqlcontroller = require('../controllers/sqlcontroller');
 const { registrationValidation, loginValidation } = require('../validators.js');
 
 
@@ -37,6 +38,6 @@ router.get('/logout', isPrivate, logMiddleware, sqluserController.logoutUser);
 router.get('/admin-home', isPublic, controller.getAdminHome);
 router.get('/user-home', isPublic, controller.getUserHome);
 
-router.get('/home-page', isPublic, controller.getPosts);
+router.get('/home-page', isPublic, sqlcontroller.getPosts);
 
 module.exports = router;

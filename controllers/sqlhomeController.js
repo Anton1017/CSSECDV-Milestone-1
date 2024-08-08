@@ -261,62 +261,62 @@ const {
     },
     //to delete a post via admin
     adminDeletePost: async (req, res) => {
-        console.log("We're at adminDeletePost");
-        const { postId } = req.body;
-        if (req.session.IsAdmin){
-            try {
+        try {
+            const { postId } = req.body;
+            if (req.session.IsAdmin){
                 await prisma.posts.update({
                     where: { PostID: postId },
                     data: { isDeleted: 1 },
                 });
                 res.redirect('/');
-            } catch (error) {
-                console.error(error);
-                res.status(500).send('Error deleting post');
-            }   
-        }
-        else
-            res.status(403).send('Unauthorized');
+            }
+            else
+                res.status(403).send('Unauthorized');
+        } catch (error) {
+            let error_msg = "Error in adminDeletePost:" + error
+            console.error(error_msg);
+            sendErrorMessage(error_msg);
+        }   
     },
 
     //to pin a post via admin
     adminPinPost: async (req, res) => {
-        console.log("We're at adminPinPost");
-        const { postId } = req.body;
-        if (req.session.IsAdmin){
-            try {
+        try {
+            const { postId } = req.body;
+            if (req.session.IsAdmin){
                 await prisma.posts.update({
-                  where: { PostID: postId },
-                  data: { isPinned: 1 },
+                    where: { PostID: postId },
+                    data: { isPinned: 1 },
                 });
                 res.redirect('/');
-            } catch (error) {
-                console.error(error);
-                res.status(500).send('Error pinning post');
             }
+            else
+                res.status(403).send('Unauthorized');
+        } catch (error) {
+            let error_msg = "Error in adminPinPost:" + error
+            console.error(error_msg);
+            sendErrorMessage(error_msg);
         }
-        else
-            res.status(403).send('Unauthorized');
     },
 
     //to unpin a post via admin
     adminUnpinPost: async (req, res) => {
-        console.log("We're at adminUnpinPost");
-        const { postId } = req.body;
-        if (req.session.IsAdmin){
-            try {
+        try {
+            const { postId } = req.body;
+            if (req.session.IsAdmin){
                 await prisma.posts.update({
-                  where: { PostID: postId },
-                  data: { isPinned: 0 },
+                    where: { PostID: postId },
+                    data: { isPinned: 0 },
                 });
                 res.redirect('/');
-            } catch (error) {
-                console.error(error);
-                res.status(500).send('Error unpinning post');
             }
+            else
+                res.status(403).send('Unauthorized');
+        } catch (error) {
+            let error_msg = "Error in adminUnpinPost:" + error
+            console.error(error_msg);
+            sendErrorMessage(error_msg);
         }
-        else
-            res.status(403).send('Unauthorized');
     }
 }
 

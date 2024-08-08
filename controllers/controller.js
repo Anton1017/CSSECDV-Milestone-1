@@ -16,6 +16,7 @@ const { ExpressHandlebars } = require('express-handlebars');
 // this was causing the warning for circular dependency
 // controller requires routes but routes also requires controller
 //const { post } = require('../routes/routes.js');
+const sendErrorMessage = require('../middlewares/errorMessage');
 
 const controller = {
 
@@ -117,11 +118,7 @@ const controller = {
         } catch (error) {
             let error_msg = "Error in getPosts:" + error
             console.error(error_msg);
-            if(DEBUG_MODE == 1){
-                res.status(500).send(error_msg);
-            } else {
-                res.status(500).send("An error occurred while fetching posts");
-            }
+            sendErrorMessage(error_msg);
         }
     },
 
@@ -245,11 +242,7 @@ const controller = {
         } catch (error) {
             let error_msg = "Error in getViewPost:" + error
             console.error(error_msg);
-            if(DEBUG_MODE == 1){
-                res.status(500).send(error_msg);
-            } else {
-                res.status(500).send("An error occurred while fetching post");
-            }
+            sendErrorMessage(error_msg);
         }
     },
 

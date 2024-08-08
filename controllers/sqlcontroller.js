@@ -9,6 +9,7 @@ const { ExpressHandlebars } = require('express-handlebars');
 // this was causing the warning for circular dependency
 // controller requires routes but routes also requires controller
 //const { post } = require('../routes/routes.js');
+const sendErrorMessage = require('../middlewares/errorMessage');
 
 const sqlcontroller = {
 
@@ -134,39 +135,43 @@ const sqlcontroller = {
     },
     // Display view profile page
     getViewProfile: async (req, res) => {
-        const user =  await prisma.users.findUnique({
-            where: {
-                Username: req.session.username
-            },
-           
-        })
-        
-        profile_render = { 
-            username: req.session.username,
-            profileUsername: req.session.username,
-            headerProfileImg: user.ProfileImg,
-            profileImg: user.ProfileImg,
-            faveCharImg: user.ProfileImg,
-            bio: user.Bio,
-            faveQuote: user.FavoriteQuote,
-            pageTitle: 'View Profile', 
-            name: req.session.name,
-            layout: 'main',
-            isOwnProfile: true
-        }
-        if (req.session.username != req.query.username){
-            about_user = await prisma.users.findUnique({
+        try{
+            const user =  await prisma.users.findUnique({
                 where: {
-                    Username: req.query.username,
+                    Username: req.session.username
                 },
             })
-            profile_render["ProfileImg"] = about_user.profileImg
-            profile_render["FavoriteCharImg"] = about_user.profileImg
-            profile_render["Bio"] = about_user.profileImg
-            profile_render["FavoriteQuote"] = about_user.profileImg
+            
+            profile_render = { 
+                username: req.session.username,
+                profileUsername: req.session.username,
+                headerProfileImg: user.ProfileImg,
+                profileImg: user.ProfileImg,
+                faveCharImg: user.ProfileImg,
+                bio: user.Bio,
+                faveQuote: user.FavoriteQuote,
+                pageTitle: 'View Profile', 
+                name: req.session.name,
+                layout: 'main',
+                isOwnProfile: true
+            }
+            if (req.session.username != req.query.username){
+                about_user = await prisma.users.findUnique({
+                    where: {
+                        Username: req.query.username,
+                    },
+                })
+                profile_render["ProfileImg"] = about_user.profileImg
+                profile_render["FavoriteCharImg"] = about_user.profileImg
+                profile_render["Bio"] = about_user.profileImg
+                profile_render["FavoriteQuote"] = about_user.profileImg
+            }
+            res.render('view_profile', profile_render);
+        } catch(error){
+            let error_msg = "Error in getViewProfile:" + error
+            console.error(error_msg);
+            sendErrorMessage(error_msg);
         }
-        res.render('view_profile', profile_render);
-        
     },
 
     // Display edit profile page

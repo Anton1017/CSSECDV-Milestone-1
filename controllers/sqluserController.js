@@ -84,7 +84,7 @@ exports.registerUser = [
       const salt = await bcrypt.genSalt(saltRounds);
       const hashedPassword = await bcrypt.hash(password, salt);
       
-      const user = await prisma.Users.create({
+      const user = await prisma.users.create({
         data: {
           Username: username,
           Email: email,
@@ -93,7 +93,7 @@ exports.registerUser = [
           FullName: full_name,
         },
       })
-      const credentials = await prisma.UserCredentials.create({
+      const credentials = await prisma.usercredentials.create({
         data: {
           UserID: user.UserID,
           Username: user.Username,

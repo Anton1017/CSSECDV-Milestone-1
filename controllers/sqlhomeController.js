@@ -80,11 +80,12 @@ function validateFileType(file) {
                         UserID: req.session.user
                     }
                 });
-        
+                res.locals.logMessage = `UserID: ${req.session.user} created a post titled ${req.body.title.trim()}`
                 res.redirect('/');
             } catch (error) {
                 console.error("Error in submitPost:", error);
                 res.status(500).send("An error occurred while submitting the post");
+                res.locals.logMessage = `UserID: ${req.session.user} has an error in submitting a post`
             }
         } catch(error){
             let error_msg = "Error in submitPost: " + error
@@ -323,11 +324,16 @@ function validateFileType(file) {
                     where: { PostID: postId },
                     data: { isDeleted: 1 },
                 });
+                res.locals.logMessage = `Admin: ${req.session.user} deleted a post ${postId}`
                 res.redirect('/');
             }
             else
-                res.status(403).send('Unauthorized');
+                {
+                    res.status(403).send('Unauthorized');
+                    res.locals.logMessage = `User is not authorized to delete a post`
+                }
         } catch (error) {
+            res.locals.logMessage = `Admin: ${req.session.user} has an error in deleting a post ${postId}`
             let error_msg = "Error in adminDeletePost: " + error
             console.error(error_msg);
             sendErrorMessage(error_msg, res);
@@ -343,11 +349,17 @@ function validateFileType(file) {
                     where: { PostID: postId },
                     data: { isPinned: 1 },
                 });
+                res.locals.logMessage = `Admin: ${req.session.user} pin a post ${postId}`
                 res.redirect('/');
             }
             else
+            {
                 res.status(403).send('Unauthorized');
+                res.locals.logMessage = `User is not authorized to pin a post`
+            }
+                
         } catch (error) {
+            res.locals.logMessage = `Admin: ${req.session.user} has an error in pinning a post ${postId}`
             let error_msg = "Error in adminPinPost: " + error
             console.error(error_msg);
             sendErrorMessage(error_msg, res);
@@ -363,11 +375,16 @@ function validateFileType(file) {
                     where: { PostID: postId },
                     data: { isPinned: 0 },
                 });
+                res.locals.logMessage = `Admin: ${req.session.user} unpin a post ${postId}`
                 res.redirect('/');
             }
             else
+            {
                 res.status(403).send('Unauthorized');
+                res.locals.logMessage = `User is not authorized to unpin a post`
+            }
         } catch (error) {
+            res.locals.logMessage = `Admin: ${req.session.user} has an error in pinning a post ${postId}`
             let error_msg = "Error in adminUnpinPost: " + error
             console.error(error_msg);
             sendErrorMessage(error_msg, res);

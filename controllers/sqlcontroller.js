@@ -130,7 +130,7 @@ const sqlcontroller = {
     
         } catch (error) {
             console.error("Error in getPosts:", error);
-            res.status(500).send("An error occurred while fetching posts");
+            res.status(500).send("An error occurred while fetching posts");             
         }
     },
     // Display view profile page
@@ -155,6 +155,7 @@ const sqlcontroller = {
                 layout: 'main',
                 isOwnProfile: true
             }
+            res.locals.logMessage = `user: ${req.session.username} viewed their own profile`
             if (req.session.username != req.query.username){
                 about_user = await prisma.users.findUnique({
                     where: {
@@ -165,8 +166,10 @@ const sqlcontroller = {
                 profile_render["FavoriteCharImg"] = about_user.profileImg
                 profile_render["Bio"] = about_user.profileImg
                 profile_render["FavoriteQuote"] = about_user.profileImg
+                res.locals.logMessage = `user: ${req.session.username} the profile of ${req.query.username}`
             }
             res.render('view_profile', profile_render);
+            
         } catch(error){
             let error_msg = "Error in getViewProfile: " + error
             console.error(error_msg);
@@ -194,42 +197,73 @@ const sqlcontroller = {
     },
 
     getViewPost: async (req, res) => {
-        const post =  await prisma.posts.findUnique({
-            where: {
-                PostID: req.query._id
-            },
-            include: {
-                PostComments: true
+        try {
+            console.log(req.query._id);
+
+            const post = await prisma.posts.findUnique({
+                where: { PostID: req.query._id },
+                include: {
+                    users: {
+                        select: {
+                            Username: true
+                        }
+                    }
+                }
+            });
+
+            console.log(post);
+
+            if (post.IsDeleted) {
+                return res.redirect('/home-page');
             }
-        })
-        const user =  await prisma.users.findUnique({
-            where: {
-                Username: req.session.username
-            },
-           
-        })
-        comments = post.PostComments
-        post = post.toJSON();
-        post.postingTime = moment(post.postingTime).fromNow();
-        comments = comments.map(comments => comments.toJSON());
-        comments.forEach(element => {
-            element.postingTime = moment(element.postingTime).fromNow();
-            element.isOwnComment = req.session.username === element.username
-        });
-        comments = comments.reverse();
-        res.render('view_post', { 
-            post,
-            comments,
-            username: req.session.username,
-            headerProfileImg: header.profileImg,
-            pageTitle: 'View Post', 
-            name: req.session.name,
-            layout: 'main', 
-            _id: req.query._id,
-            isOwnPost: (req.session.username === post.username)
-            
-        });
+
+            post.TimePosted = moment(post.TimePosted).fromNow();
+
+            const comments = await prisma.postcomments.findMany({
+                where: { PostID: req.query._id },
+                orderBy: { TimeCommented: 'desc' },
+                include: {
+                    users: {
+                        select: {
+                            Username: true
+                        }
+                    }
+                }
+            });
+
+            const formattedComments = comments.map(comment => ({
+                ...comment,
+                timeCommented: moment(comment.TimeCommented).fromNow(),
+                isOwnComment: req.session.username === comment.CommenterID,
+                CommenterUsername: comment.users.Username
+            }));
+
+            const header = await prisma.users.findUnique({
+                where: { Username: req.session.username },
+                select: { ProfileImg: true }
+            });
+
+            res.render('view_post', { 
+                post,
+                comments: formattedComments,
+                username: req.session.username,
+                headerProfileImg: header?.ProfileImg,
+                pageTitle: 'View Post', 
+                name: req.session.name,
+                layout: 'main', 
+                _id: req.query._id,
+                isOwnPost: (req.session.userID === post.UserID)
+            });
+            res.locals.logMessage = `user: ${req.session.username} views the post titled ${post.Title}`
+        } catch (error) {
+            let error_msg = "Error in getViewPost: " + error
+            console.error(error_msg);
+            sendErrorMessage(error_msg, res);
+            res.locals.logMessage = `user: ${req.session.username} has an error viewing post titled ${post.Title}`
+        }
     },
+    
+
     likePost: async (req, res) => {
         const user =  await prisma.users.findUnique({
             where: {

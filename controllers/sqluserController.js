@@ -207,12 +207,13 @@ exports.logoutUser = (req, res) => {
   try{
     // Destroy the session and redirect to login page
     if (req.session) {
+      res.locals.logMessage = `User logged out (userID: ${req.session.user})`
       req.session.destroy(() => {
         res.clearCookie('connect.sid');
         res.setHeader("Surrogate-Control", "no-store");
         res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
         res.setHeader("Expires", "0");
-        res.locals.logMessage = `User logged out (userID: ${UserID})`
+        
         return res.redirect('/login');
       });
     }

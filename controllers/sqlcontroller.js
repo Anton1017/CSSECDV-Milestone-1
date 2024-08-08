@@ -109,7 +109,9 @@ const sqlcontroller = {
                     Username: req.session.username
                 }
             })
-            
+
+            const formattedDateCreated = moment(user.DateRegistered).format('YYYY-MM-DD');
+
             console.log(posts);
             // Render the home page
             res.render('home', { 
@@ -120,7 +122,9 @@ const sqlcontroller = {
                 pageTitle: 'Home', 
                 name: req.session.name,
                 isAdmin: header.isAdmin,
-                layout: 'main'
+                layout: 'main',
+                dateCreated: formattedDateCreated,
+                phoneNumber: user.ContactNumber
             });
     
         } catch (error) {
@@ -140,9 +144,9 @@ const sqlcontroller = {
         profile_render = { 
             username: req.session.username,
             profileUsername: req.session.username,
-            headerProfileImg: users.ProfileImg,
-            profileImg: user.FavoriteCharImg,
-            faveCharImg: user.FavoriteCharImg,
+            headerProfileImg: user.ProfileImg,
+            profileImg: user.ProfileImg,
+            faveCharImg: user.ProfileImg,
             bio: user.Bio,
             faveQuote: user.FavoriteQuote,
             pageTitle: 'View Profile', 

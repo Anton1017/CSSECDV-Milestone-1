@@ -2,7 +2,6 @@ const router = require('express').Router();
 // Use the controller to process requests
 const controller = require('../controllers/controller.js');
 const homeController = require('../controllers/homeController.js')
-const sqlcontroller = require('../controllers/sqlcontroller');
 
 const { isPrivate } = require('../middlewares/checkAuth'); //requires users to be logged in to access these pages
 const nocache = require('../middlewares/invalidateCache');
@@ -15,6 +14,7 @@ const Post = require('../models/Post.js');
 const Profile = require('../models/Profile.js');
 const User = require('../models/User.js');
 const sqlhomeController = require('../controllers/sqlhomeController');
+const sqlcontroller = require('../controllers/sqlcontroller');
 
 const path = require('path');
 
@@ -27,7 +27,7 @@ router.get('/', isPrivate, sqlcontroller.getPosts);
 router.get('/home', isPrivate, sqlcontroller.getPosts);
 
 
-router.get('/view-profile', isPrivate, controller.getViewProfile);
+router.get('/view-profile', isPrivate, sqlcontroller.getViewProfile);
 
 router.get('/edit-profile', isPrivate, controller.getEditProfile);
 

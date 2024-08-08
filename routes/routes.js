@@ -15,7 +15,7 @@ const Profile = require('../models/Profile.js');
 const User = require('../models/User.js');
 const sqlhomeController = require('../controllers/sqlhomeController');
 const sqlcontroller = require('../controllers/sqlcontroller');
-
+const { logMiddleware, withErrorHandling } = require('../middlewares/loggingBase');
 const path = require('path');
 
 router.use(nocache);
@@ -27,23 +27,23 @@ router.get('/', isPrivate, sqlcontroller.getPosts);
 router.get('/home', isPrivate, sqlcontroller.getPosts);
 
 
-router.get('/view-profile', isPrivate, sqlcontroller.getViewProfile);
+router.get('/view-profile', isPrivate, logMiddleware, sqlcontroller.getViewProfile);
 
 router.get('/edit-profile', isPrivate, controller.getEditProfile);
 
-router.get('/view-post', isPrivate, controller.getViewPost);
+router.get('/view-post', isPrivate,logMiddleware, sqlcontroller.getViewPost);
 
 router.get('/like-post', isPrivate, controller.likePost);
 
 router.get('/like-comment', isPrivate, controller.likeComment);
 
-router.post('/submit-post', isPrivate, postValidation, sqlhomeController.submitPost);
+router.post('/submit-post', isPrivate, logMiddleware, postValidation, sqlhomeController.submitPost);
 
-router.post('/admin/delete-post', isPrivate, sqlhomeController.adminDeletePost);
+router.post('/admin/delete-post', isPrivate, logMiddleware, sqlhomeController.adminDeletePost);
 
-router.post('/admin/pin-post', isPrivate, sqlhomeController.adminPinPost);
+router.post('/admin/pin-post', isPrivate, logMiddleware, sqlhomeController.adminPinPost);
 
-router.post('/admin/unpin-post', isPrivate, sqlhomeController.adminUnpinPost);
+router.post('/admin/unpin-post', isPrivate, logMiddleware, sqlhomeController.adminUnpinPost);
 
 router.post('/comment-post', isPrivate, homeController.submitComment);
 

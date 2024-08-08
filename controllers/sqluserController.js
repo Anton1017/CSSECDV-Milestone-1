@@ -107,12 +107,12 @@ exports.registerUser = [
           },
         })
         req.flash('success_msg', 'You are now registered and can log in');
-        res.locals.logMessage = 'User created'
+        res.locals.logMessage = `User created UserID ${user.Username}`
         return res.redirect('/login');
       } catch (error) {
         console.log(error);
         req.flash('error_msg', 'Could not create user. Please try again.');
-        res.locals.logMessage = 'Error on user creation'
+        res.locals.logMessage = `Error on user creation `
         return res.redirect('/signup');
       }
     } catch(error){
@@ -165,13 +165,13 @@ exports.loginUser = async (req, res) => {
             if (user.isAdmin == 1)
             {
               console.log("is admin");
-              res.locals.logMessage = `Login successful (admin) (userID: ${user.UserID})`
+              res.locals.logMessage = `Login successful (admin) (userID: ${user.Username})`
               return res.redirect('/home-page');
             }
             else if (user.isAdmin == 0)
             {
               console.log("is not admin");
-              res.locals.logMessage = `Login successful (userID: ${user.UserID})`
+              res.locals.logMessage = `Login successful (userID: ${user.Username})`
               return res.redirect('/home-page');
             }
             //return res.redirect('/login');
@@ -207,7 +207,7 @@ exports.logoutUser = (req, res) => {
   try{
     // Destroy the session and redirect to login page
     if (req.session) {
-      res.locals.logMessage = `User logged out (userID: ${req.session.user})`
+      res.locals.logMessage = `User logged out (userID: ${req.session.username})`
       req.session.destroy(() => {
         res.clearCookie('connect.sid');
         res.setHeader("Surrogate-Control", "no-store");

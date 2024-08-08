@@ -37,7 +37,7 @@ router.get('/like-post', isPrivate, controller.likePost);
 
 router.get('/like-comment', isPrivate, controller.likeComment);
 
-router.post('/submit-post', isPrivate, postValidation, homeController.submitPost);
+router.post('/submit-post', isPrivate, postValidation, sqlhomeController.submitPost);
 
 router.post('/admin/delete-post', isPrivate, sqlhomeController.adminDeletePost);
 

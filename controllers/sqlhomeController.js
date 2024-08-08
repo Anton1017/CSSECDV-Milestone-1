@@ -1,57 +1,88 @@
 const { PrismaClient } = require('@prisma/client')
 const fs = require('fs');
 const path = require('path');
+const mime = require('mime-types');
 const prisma = new PrismaClient()
-
+const { validationResult } = require('express-validator');
 const { 
     v1: uuidv1,
     v4: uuidv4,
   } = require('uuid');
-
-
-const homeController = {
+  const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif'];
+  const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+  function validateFileType(file) {
+    const viewArray = new Uint8Array(file.data);
+    
+    // Check magic numbers for JPG and PNG
+    const isJPG = viewArray[0] === 0xFF && viewArray[1] === 0xD8;
+    const isPNG = viewArray[0] === 0x89 && viewArray[1] === 0x50 && viewArray[2] === 0x4E && viewArray[3] === 0x47;
+    
+    return isJPG || isPNG;
+}
+  const homeController = {
     //to submit a post
-    submitPost: async (req, res) => {
+    submitPost : async (req, res) => {
         const errors = validationResult(req);
-        if(!errors.isEmpty()){
-            // refactor this to the logger later
+    
+        if (!errors.isEmpty()) {
             const messages = errors.array().map((item) => item.msg);
             req.flash('error_msg', messages.join(' '));
-            res.redirect('/');
+            return res.redirect('/');
         }
-        if(req.files == null){
-            await prisma.posts.create({
-                data: {
-                  UserID: req.session._userid, 
-                  Title: req.body.title,
-                  TextContent: req.body.textContent || "(Empty post body)",
-                
-                },
-              });
-            res.redirect('/');
+    
+        // Check if user is authenticated
+        if (!req.session.user) {
+            req.flash('error_msg', 'You must be logged in to post.');
+            return res.redirect('/login');
         }
-        const image = req.files.imageContent
-        //console.log(image);
-        let newname = uuidv1() + path.extname(image.name);
-        fs.stat('./public/images/' + newname, function(err, data){
-            if(err){
-                image.name = newname;
+    
+        try {
+            let ImageContent = null;
+    
+            if (req.files && req.files.imageContent) {
+                const image = req.files.imageContent;
+    
+                // Check file type using magic numbers
+                if (!validateFileType(image)) {
+                    req.flash('error_msg', 'Invalid image type');
+                    return res.redirect('/');
+                }
+    
+                // Validate file size
+                if (image.size > MAX_IMAGE_SIZE) {
+                    req.flash('error_msg', 'Image size exceeds the limit of 5MB');
+                    return res.redirect('/');
+                }
+    
+                // Sanitize file name
+                const ext = path.extname(image.name);
+                const newname = uuidv1() + ext;
+                const imagePath = path.resolve('./public/images', newname);
+    
+                // Ensure the directory exists
+                if (!fs.existsSync(path.dirname(imagePath))) {
+                    fs.mkdirSync(path.dirname(imagePath), { recursive: true });
+                }
+    
+                await image.mv(imagePath);
+    
+                ImageContent = '/images/' + newname;
             }
-        });
-        //console.log(req.files.imageContent)
-        //console.log(path.resolve('./public/images', newname));
-        image.mv(path.resolve('./public/images', newname), async (error) => {
+    
             await prisma.posts.create({
                 data: {
-                  UserID: req.session._userid, 
-                  Title: req.body.title,
-                  TextContent: req.body.textContent || "(Empty post body)",
-                  IMageContent: '/images/' + newname,
-                },
-              });
+                    Title: req.body.title.trim(),
+                    TextContent: req.body.textContent.trim() || "(Empty post body)",
+                    ImageContent,
+                    UserID: req.session.user
+                }
+            });
+    
             res.redirect('/');
-        }); 
-
+        } catch (error) {
+            console.error("Error in submitPost:", error);
+            res.status(500).send("An error occurred while submitting the post");
+        }
     },
     submitComment: async (req, res) => {
         //validations anyone??

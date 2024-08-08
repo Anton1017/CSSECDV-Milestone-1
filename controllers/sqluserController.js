@@ -36,6 +36,7 @@ exports.registerUser = [
     if (!errors.isEmpty()) {
       const messages = errors.array().map((item) => item.msg);
       req.flash('error_msg', messages.join(' '));
+      res.locals.logMessage = 'Validation failed'
       return res.redirect('/signup');
     }
 
@@ -46,7 +47,8 @@ exports.registerUser = [
     });
 
     if (results != null) {
-      req.flash('error_msg', 'Username already exists.');
+      req.flash('error_msg', 'User already exists.');
+      res.locals.logMessage = 'User already exists'
       return res.redirect('/signup');
     }
 
@@ -65,6 +67,7 @@ exports.registerUser = [
 
         if (!validateFileType(imageFile)) {
           req.flash('error_msg', 'The file you selected is not a JPG or PNG image.');
+          res.locals.logMessage = 'Invalid image file submission'
           return res.redirect('/signup');
         } else {
           fs.stat('./public/images/' + newname, function(err, data){
@@ -75,6 +78,7 @@ exports.registerUser = [
           image.mv(path.resolve('./public/images', newname), (error) => {
               if(error){
                 req.flash('error_msg', 'Error on image upload.');
+                res.locals.logMessage = 'Error on image file submission'
                 return res.redirect('/signup');
               }
           });
@@ -102,10 +106,12 @@ exports.registerUser = [
         },
       })
       req.flash('success_msg', 'You are now registered and can log in');
+      res.locals.logMessage = 'User created'
       return res.redirect('/login');
     } catch (error) {
       console.log(error);
       req.flash('error_msg', 'Could not create user. Please try again.');
+      res.locals.logMessage = 'Error on user creation'
       return res.redirect('/signup');
     }
   }
@@ -132,6 +138,7 @@ exports.loginUser = async (req, res) => {
       console.log(user)
       if (user==null){
         req.flash('error_msg', 'Incorrect credentials. Please try again.');
+        res.locals.logMessage = 'Incorrect credentials'
         return res.redirect('/login');
       }
 
@@ -152,23 +159,27 @@ exports.loginUser = async (req, res) => {
           if (user.isAdmin == 1)
           {
             console.log("is admin");
+            res.locals.logMessage = `Login successful (admin) (userID: ${user.UserID})`
             return res.redirect('/home-page');
           }
           else if (user.isAdmin == 0)
           {
             console.log("is not admin");
+            res.locals.logMessage = `Login successful (userID: ${user.UserID})`
             return res.redirect('/home-page');
           }
           //return res.redirect('/login');
         } else {
           // passwords don't match
           req.flash('error_msg', 'Incorrect credentials. Please try again.');
+          res.locals.logMessage = 'Incorrect credentials'
           return res.redirect('/login');
         }
       });
     } else {
       const messages = errors.array().map((item) => item.msg);
       req.flash('error_msg', messages.join(' '));
+      res.locals.logMessage = 'Validation failed'
       return res.redirect('/login');
     }
     
@@ -190,6 +201,7 @@ exports.logoutUser = (req, res) => {
       res.setHeader("Surrogate-Control", "no-store");
       res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
       res.setHeader("Expires", "0");
+       res.locals.logMessage = `User logged out (userID: ${UserID})`
       return res.redirect('/login');
     });
   }

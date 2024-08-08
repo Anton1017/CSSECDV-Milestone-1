@@ -36,7 +36,6 @@ exports.registerUser = [
     if (!errors.isEmpty()) {
       const messages = errors.array().map((item) => item.msg);
       req.flash('error_msg', messages.join(' '));
-      res.locals.logMessage = 'Validation failed'
       return res.redirect('/signup');
     }
 
@@ -47,8 +46,7 @@ exports.registerUser = [
     });
 
     if (results != null) {
-      req.flash('error_msg', 'User already exists.');
-      res.locals.logMessage = 'User already exists'
+      req.flash('error_msg', 'Username already exists.');
       return res.redirect('/signup');
     }
 
@@ -67,7 +65,6 @@ exports.registerUser = [
 
         if (!validateFileType(imageFile)) {
           req.flash('error_msg', 'The file you selected is not a JPG or PNG image.');
-          res.locals.logMessage = 'Invalid image file submission'
           return res.redirect('/signup');
         } else {
           fs.stat('./public/images/' + newname, function(err, data){
@@ -78,7 +75,6 @@ exports.registerUser = [
           image.mv(path.resolve('./public/images', newname), (error) => {
               if(error){
                 req.flash('error_msg', 'Error on image upload.');
-                res.locals.logMessage = 'Error on image file submission'
                 return res.redirect('/signup');
               }
           });
@@ -87,26 +83,30 @@ exports.registerUser = [
 
       const salt = await bcrypt.genSalt(saltRounds);
       const hashedPassword = await bcrypt.hash(password, salt);
-
-      await prisma.users.create({
+      
+      const user = await prisma.Users.create({
         data: {
           Username: username,
           Email: email,
-          Password: hashedPassword,
-          PasswordSalt: salt,
           ContactNumber: contact_number,
           ProfileImg: (form_files != null && "imageContent" in form_files) ? '/images/' + newname : "/images/generic_profile_pic.png",
           FullName: full_name,
         },
-      });
-
+      })
+      const credentials = await prisma.UserCredentials.create({
+        data: {
+          UserID: user.UserID,
+          Username: username,
+          Email: email,
+          Password: hashedPassword,
+          PasswordSalt: salt,
+        },
+      })
       req.flash('success_msg', 'You are now registered and can log in');
-      res.locals.logMessage = 'User created'
       return res.redirect('/login');
     } catch (error) {
       console.log(error);
       req.flash('error_msg', 'Could not create user. Please try again.');
-      res.locals.logMessage = 'Error on user creation'
       return res.redirect('/signup');
     }
   }
@@ -125,14 +125,13 @@ exports.loginUser = async (req, res) => {
         password
       } = req.body;
 
-      const user = await prisma.users.findUnique({
+      const user = await prisma.usercredentials.findUnique({
         where: {
           Username: username,
         },
       })
       if (user==null){
         req.flash('error_msg', 'Incorrect credentials. Please try again.');
-        res.locals.logMessage = 'Incorrect credentials'
         return res.redirect('/login');
       }
 
@@ -140,36 +139,31 @@ exports.loginUser = async (req, res) => {
         // passwords match (result == true)
         if (result) {
           // Update session object once matched!
-          req.session.user = user.UsersID;
-          req.session.username = user.Username;
-          req.session.isAdmin = user.IsAdmin;
+          // req.session.user = user.UsersID;
+          // req.session.username = user.Username;
           // console.log("Login Success");
-          console.log(req.session);
+          // console.log(req.session);
           req.flash('error_msg', 'Login successful.');
           if (user.IsAdmin == 1)
           {
-            console.log("Went to home (admin)");
-            res.locals.logMessage = `Login successful (admin) (userID: ${user.UsersID})`
+            console.log("Went to home");
             return res.redirect('/home-page');
           }
           else if (user.IsAdmin == 0)
           {
-            console.log("Went to home (regular)");
-            res.locals.logMessage = `Login successful (userID: ${user.UsersID})`
+            console.log("Went to home");
             return res.redirect('/home-page');
           }
           //return res.redirect('/login');
         } else {
           // passwords don't match
           req.flash('error_msg', 'Incorrect credentials. Please try again.');
-          res.locals.logMessage = 'Incorrect credentials'
           return res.redirect('/login');
         }
       });
     } else {
       const messages = errors.array().map((item) => item.msg);
       req.flash('error_msg', messages.join(' '));
-      res.locals.logMessage = 'Validation failed'
       return res.redirect('/login');
     }
     
@@ -177,26 +171,20 @@ exports.loginUser = async (req, res) => {
   .catch((rateLimiterRes) => {
     // Not enough points to consume
     req.flash('error_msg', 'You have exceeded the login attempts. Please come back later.');
-    // Do not log too many to avoid unrestricted/spammed logging for DDOS attacks
-    if (rateLimiterRes.isFirstInDuration){
-      res.locals.logMessage = 'Too many login attempts'
-    }
     return res.redirect('/login');
   });
 
   
 };
 
-exports.logoutUser = async (req, res) => {
+exports.logoutUser = (req, res) => {
   // Destroy the session and redirect to login page
   if (req.session) {
-    const userID = req.session.user
     req.session.destroy(() => {
       res.clearCookie('connect.sid');
       res.setHeader("Surrogate-Control", "no-store");
       res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
       res.setHeader("Expires", "0");
-      res.locals.logMessage = `User logged out (userID: ${userID})`
       return res.redirect('/login');
     });
   }

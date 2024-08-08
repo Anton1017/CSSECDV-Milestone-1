@@ -7,93 +7,101 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model commentlikes {
-  CommentLikeID String        @id @default(dbgenerated("(uuid())")) @db.VarChar(45)
+model CommentLikes {
+  CommentLikeID String        @id @db.VarChar(45) @default(cuid())
   CommentID     String?       @db.VarChar(45)
   UserID        String?       @db.VarChar(45)
-  postcomments  postcomments? @relation(fields: [CommentID], references: [PostCommentID], onDelete: NoAction, onUpdate: NoAction, map: "CommentLikeID")
-  users         users?        @relation(fields: [UserID], references: [UsersID], onDelete: NoAction, onUpdate: NoAction, map: "UserLikedCommentID")
+  PostComments  PostComments? @relation(fields: [CommentID], references: [PostCommentID], onDelete: NoAction, onUpdate: NoAction, map: "CommentLikeID")
+  Users         Users?        @relation(fields: [UserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "UserLikedCommentID")
 
   @@index([CommentID], map: "CommentLikeID_idx")
   @@index([UserID], map: "UserLikedCommentID_idx")
 }
 
-model postcomments {
-  PostCommentID      String         @id @default(dbgenerated("(uuid())")) @db.VarChar(45)
+model PostComments {
+  PostCommentID      String         @id @db.VarChar(45) @default(cuid())
   PostID             String         @db.VarChar(45)
   CommenterID        String         @db.VarChar(45)
   TextContent        String?        @db.VarChar(255)
   ImageContent       String?        @db.VarChar(45)
   ParentCommentID    String?        @db.VarChar(45)
   NumComments        Int            @default(0)
-  TimeCommented      DateTime       @default(dbgenerated("(now())")) @db.DateTime(0)
-  commentlikes       commentlikes[]
-  users              users          @relation(fields: [CommenterID], references: [UsersID], onDelete: NoAction, onUpdate: NoAction, map: "CommenterID")
-  postcomments       postcomments?  @relation("postcommentsTopostcomments", fields: [ParentCommentID], references: [PostCommentID], onDelete: NoAction, onUpdate: NoAction, map: "ParentCommentID")
-  other_postcomments postcomments[] @relation("postcommentsTopostcomments")
-  posts              posts          @relation(fields: [PostID], references: [PostID], onDelete: NoAction, onUpdate: NoAction, map: "PostID")
+  TimeCommented      DateTime       @db.DateTime(0)
+  CommentLikes       CommentLikes[]
+  Users              Users          @relation(fields: [CommenterID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "CommenterID")
+  PostComments       PostComments?  @relation("PostCommentsToPostComments", fields: [ParentCommentID], references: [PostCommentID], onDelete: NoAction, onUpdate: NoAction, map: "ParentCommentID")
+  other_PostComments PostComments[] @relation("PostCommentsToPostComments")
+  Posts              Posts          @relation(fields: [PostID], references: [PostID], onDelete: NoAction, onUpdate: NoAction, map: "PostID")
 
   @@index([CommenterID], map: "CommenterID_idx")
   @@index([ParentCommentID], map: "ParentCommentID_idx")
   @@index([PostID], map: "PostID_idx")
 }
 
-model postlikes {
-  PostLikeID String @id @unique(map: "PostLikeID_UNIQUE") @default(dbgenerated("(uuid())")) @db.VarChar(45)
+model PostLikes {
+  PostLikeID String @id @unique(map: "PostLikeID_UNIQUE") @db.VarChar(45) @default(cuid())
   PostID     String @db.VarChar(45)
   UserID     String @db.VarChar(45)
-  posts      posts  @relation(fields: [PostID], references: [PostID], onDelete: NoAction, onUpdate: NoAction, map: "PostLikedID")
-  users      users  @relation(fields: [UserID], references: [UsersID], onDelete: NoAction, onUpdate: NoAction, map: "UserLikePostID")
+  Posts      Posts  @relation(fields: [PostID], references: [PostID], onDelete: NoAction, onUpdate: NoAction, map: "PostLikedID")
+  Users      Users  @relation(fields: [UserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "UserLikePostID")
 
   @@index([PostID], map: "PostLikedID_idx")
   @@index([UserID], map: "UserLikePostID_idx")
 }
 
-model posts {
-  PostID       String         @id @default(dbgenerated("(uuid())")) @db.VarChar(45)
+model Posts {
+  PostID       String         @id @db.VarChar(45) @default(cuid())
   UserID       String         @db.VarChar(45)
   Title        String         @db.VarChar(45)
   TextContent  String?        @db.VarChar(45)
   ImageContent String?        @db.VarChar(45)
   NumLikes     Int            @default(0)
-  TimePosted   DateTime?      @default(dbgenerated("(now())")) @db.DateTime(0)
-  IsDeleted    Boolean?
-  NumComments  Int?
-  IsPinned     Boolean?
-  postcomments postcomments[]
-  postlikes    postlikes[]
-  users        users          @relation(fields: [UserID], references: [UsersID], onDelete: NoAction, onUpdate: NoAction, map: "PosterID")
+  TimePosted   DateTime?      @db.DateTime(0)
+  isPinned     Int            @default(0) @db.TinyInt
+  isDeleted    Int            @default(0) @db.TinyInt
+  PostComments PostComments[]
+  PostLikes    PostLikes[]
+  Users        Users          @relation(fields: [UserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "PosterID")
 
   @@index([UserID], map: "PosterID_idx")
 }
 
-model userprofile {
-  UserProfileID String  @id @unique(map: "UserProfileID_UNIQUE") @default(dbgenerated("(uuid())")) @db.VarChar(45)
-  UserID        String  @db.VarChar(45)
-  Bio           String? @db.VarChar(45)
-  FavQuote      String? @db.VarChar(45)
-  FaveCharImg   String? @db.VarChar(45)
-  users         users   @relation(fields: [UserID], references: [UsersID], onDelete: NoAction, onUpdate: NoAction, map: "ProfileUserID")
+model UserCredentials {
+  Username                              String    @id @unique(map: "Username_UNIQUE") @db.VarChar(45)
+  Password                              String    @db.VarChar(45)
+  PasswordSalt                          String?   @db.VarChar(45)
+  isAdmin                               Boolean   @default(false)
+  UserID                                String    @db.VarChar(45)
+  DateRegistered                        DateTime? @db.DateTime(0)
+  DateModified                          DateTime? @db.DateTime(0)
+  Users_UserCredentials_UserIDToUsers   Users     @relation("UserCredentials_UserIDToUsers", fields: [UserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "user_id")
+  Users_Users_UsernameToUserCredentials Users?    @relation("Users_UsernameToUserCredentials")
 
-  @@index([UserID], map: "ProfileUserID_idx")
+  @@index([UserID], map: "user_id_idx")
 }
 
-model users {
-  UsersID        String         @id @default(dbgenerated("(uuid())")) @db.VarChar(45)
-  Username       String         @unique(map: "Username_UNIQUE") @db.VarChar(45)
-  Email          String         @unique(map: "Email_UNIQUE") @db.VarChar(45)
-  Password       String         @db.VarChar(60)
-  PasswordSalt   String         @db.VarChar(45)
-  ProfileImg     String         @db.VarChar(48)
-  FullName       String         @db.VarChar(45)
-  ContactNumber  String         @db.VarChar(15)
-  DateRegistered DateTime       @default(dbgenerated("(now())")) @db.DateTime(0)
-  DateModified   DateTime       @default(dbgenerated("(now())")) @db.DateTime(0)
-  IsAdmin        Boolean        @default(false)
-  IsBanned       Boolean?
-  commentlikes   commentlikes[]
-  postcomments   postcomments[]
-  postlikes      postlikes[]
-  posts          posts[]
-  userprofile    userprofile[]
+model Users {
+  UserID                                          String            @id @db.VarChar(45) @default(cuid())
+  Email                                           String            @unique(map: "Email_UNIQUE") @db.VarChar(45)
+  FullName                                        String            @db.VarChar(45)
+  ContactNumber                                   String            @db.VarChar(15)
+  DateRegistered                                  DateTime          @db.DateTime(0)
+  DateModified                                    DateTime          @db.DateTime(0)
+  ProfileImg                                      String            @db.VarChar(45)
+  Username                                        String            @unique(map: "Username_UNIQUE") @db.VarChar(45)
+  Bio                                             String?           @db.VarChar(100)
+  FavoriteQuote                                   String?           @db.VarChar(45)
+  FavoriteCharImg                                 String?           @db.VarChar(45)
+  CommentLikes                                    CommentLikes[]
+  PostComments                                    PostComments[]
+  PostLikes                                       PostLikes[]
+  Posts                                           Posts[]
+  UserCredentials_UserCredentials_UserIDToUsers   UserCredentials[] @relation("UserCredentials_UserIDToUsers")
+  UserCredentials_Users_UsernameToUserCredentials UserCredentials   @relation("Users_UsernameToUserCredentials", fields: [Username], references: [Username], onDelete: NoAction, onUpdate: NoAction, map: "user_name")
+}
+
+model sessions {
+  session_id String  @id @db.VarChar(128) 
+  expires    Int     @db.UnsignedInt
+  data       String? @db.MediumText
 }

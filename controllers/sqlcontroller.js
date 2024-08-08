@@ -211,6 +211,10 @@ const sqlcontroller = {
                 }
             });
 
+            const post_like_count = await prisma.postlikes.count({
+                where: {PostID: req.query._id}
+            });
+
             console.log(post);
 
             if (post.IsDeleted) {
@@ -245,6 +249,7 @@ const sqlcontroller = {
 
             res.render('view_post', { 
                 post,
+                like_count:post_like_count,
                 comments: formattedComments,
                 username: req.session.username,
                 headerProfileImg: header?.ProfileImg,
@@ -275,7 +280,7 @@ const sqlcontroller = {
                 PostID: req.query._id
             }
         })
-        const post_liked =  await prisma.postlikes.findUnique({
+        const post_liked =  await prisma.postlikes.findFirst({
             where: {
                 PostID: req.query._id,
                 UserID: user.UserID
@@ -291,15 +296,15 @@ const sqlcontroller = {
                 },
             })
             // need to figure out what to return 
-            res.json({likes: like_count + 1});
+            return res.json({likes: like_count + 1});
         }
         // already liked the post, so it will reverse that
         await prisma.postlikes.delete({
-            data: {
+            where: {
                 PostLikeID: post_liked.PostLikeID
             },
         })
-        res.json({likes: like_count - 1});
+        return res.json({likes: like_count - 1});
 
     },
     likeComment: async (req, res) => {
@@ -334,7 +339,7 @@ const sqlcontroller = {
         }
         // already liked the post, so it will reverse that
         await prisma.commentlikes.delete({
-            data: {
+            where: {
                 CommentLikeID: post_liked.PostLikeID
             },
         })

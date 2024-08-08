@@ -33,7 +33,7 @@ router.get('/edit-profile', isPrivate, controller.getEditProfile);
 
 router.get('/view-post', isPrivate,logMiddleware, sqlcontroller.getViewPost);
 
-router.get('/like-post', isPrivate, controller.likePost);
+router.get('/like-post', isPrivate, sqlcontroller.likePost);
 
 router.get('/like-comment', isPrivate, controller.likeComment);
 

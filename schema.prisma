@@ -72,8 +72,6 @@ model usercredentials {
   PasswordSalt                          String?   @db.VarChar(45)
   isAdmin                               Boolean   @default(false)
   UserID                                String    @db.VarChar(45)
-  DateRegistered                        DateTime? @db.DateTime(0)
-  DateModified                          DateTime? @db.DateTime(0)
   users_usercredentials_UserIDTousers   users     @relation("usercredentials_UserIDTousers", fields: [UserID], references: [UserID], onDelete: NoAction, onUpdate: NoAction, map: "user_id")
   users_usercredentials_UsernameTousers users     @relation("usercredentials_UsernameTousers", fields: [Username], references: [Username], onDelete: NoAction, onUpdate: NoAction, map: "user_name")
 

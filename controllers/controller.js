@@ -115,8 +115,13 @@ const controller = {
             });
     
         } catch (error) {
-            console.error("Error in getPosts:", error);
-            res.status(500).send("An error occurred while fetching posts");
+            let error_msg = "Error in getPosts:" + error
+            console.error(error_msg);
+            if(DEBUG_MODE == 1){
+                res.status(500).send(error_msg);
+            } else {
+                res.status(500).send("An error occurred while fetching posts");
+            }
         }
     },
 
@@ -238,8 +243,13 @@ const controller = {
                 isOwnPost: (req.session.userID === post.UserID)
             });
         } catch (error) {
-            console.error("Error in getViewPost:", error);
-            res.status(500).send("An error occurred while fetching post");
+            let error_msg = "Error in getViewPost:" + error
+            console.error(error_msg);
+            if(DEBUG_MODE == 1){
+                res.status(500).send(error_msg);
+            } else {
+                res.status(500).send("An error occurred while fetching post");
+            }
         }
     },
 

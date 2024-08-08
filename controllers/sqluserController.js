@@ -96,8 +96,7 @@ exports.registerUser = [
       const credentials = await prisma.UserCredentials.create({
         data: {
           UserID: user.UserID,
-          Username: username,
-          Email: email,
+          Username: user.Username,
           Password: hashedPassword,
           PasswordSalt: salt,
         },

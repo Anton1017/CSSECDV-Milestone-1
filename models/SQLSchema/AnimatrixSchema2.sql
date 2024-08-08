@@ -21,16 +21,16 @@ USE `animatrix` ;
 -- Table `animatrix`.`Users`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `animatrix`.`Users` (
-  `UserID` VARCHAR(45) NOT NULL,
+  `UserID` VARCHAR(45) NOT NULL DEFAULT (UUID()),
   `Email` VARCHAR(45) NOT NULL,
   `FullName` VARCHAR(45) NOT NULL,
   `ContactNumber` VARCHAR(15) NOT NULL,
-  `DateRegistered` DATETIME NOT NULL,
-  `DateModified` DATETIME NOT NULL,
-  `ProfileImg` VARCHAR(45) NOT NULL,
+  `DateRegistered` DATETIME NOT NULL DEFAULT (NOW()),
+  `DateModified` DATETIME NOT NULL DEFAULT (NOW()),
+  `ProfileImg` VARCHAR(48) NOT NULL,
   `Bio` VARCHAR(100) NULL,
   `FavoriteQuote` VARCHAR(45) NULL,
-  `FavoriteCharImg` VARCHAR(45) NULL,
+  `FavoriteCharImg` VARCHAR(48) NULL,
   `Username` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`UserID`),
   UNIQUE INDEX `Email_UNIQUE` (`Email` ASC) VISIBLE,
@@ -42,13 +42,13 @@ ENGINE = InnoDB;
 -- Table `animatrix`.`Posts`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `animatrix`.`Posts` (
-  `PostID` VARCHAR(45) NOT NULL,
+  `PostID` VARCHAR(45) NOT NULL DEFAULT (UUID()),
   `UserID` VARCHAR(45) NOT NULL,
   `Title` VARCHAR(45) NOT NULL,
   `TextContent` VARCHAR(45) NULL,
-  `ImageContent` VARCHAR(45) NULL,
+  `ImageContent` VARCHAR(48) NULL,
   `NumLikes` INT NOT NULL DEFAULT 0,
-  `TimePosted` DATETIME NULL,
+  `TimePosted` DATETIME NULL DEFAULT (NOW()),
   `isPinned` TINYINT NOT NULL DEFAULT 0,
   `isDeleted` TINYINT NOT NULL DEFAULT 0,
   PRIMARY KEY (`PostID`),
@@ -65,14 +65,14 @@ ENGINE = InnoDB;
 -- Table `animatrix`.`PostComments`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `animatrix`.`PostComments` (
-  `PostCommentID` VARCHAR(45) NOT NULL,
+  `PostCommentID` VARCHAR(45) NOT NULL DEFAULT (UUID()),
   `PostID` VARCHAR(45) NOT NULL,
   `CommenterID` VARCHAR(45) NOT NULL,
   `TextContent` VARCHAR(255) NULL,
-  `ImageContent` VARCHAR(45) NULL,
+  `ImageContent` VARCHAR(48) NULL,
   `ParentCommentID` VARCHAR(45) NULL,
   `NumComments` INT NOT NULL DEFAULT 0,
-  `TimeCommented` DATETIME NOT NULL,
+  `TimeCommented` DATETIME NOT NULL DEFAULT (NOW()),
   PRIMARY KEY (`PostCommentID`),
   INDEX `CommenterID_idx` (`CommenterID` ASC) VISIBLE,
   INDEX `PostID_idx` (`PostID` ASC) VISIBLE,
@@ -99,7 +99,7 @@ ENGINE = InnoDB;
 -- Table `animatrix`.`CommentLikes`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `animatrix`.`CommentLikes` (
-  `CommentLikeID` VARCHAR(45) NOT NULL,
+  `CommentLikeID` VARCHAR(45) NOT NULL DEFAULT (UUID()),
   `CommentID` VARCHAR(45) NULL,
   `UserID` VARCHAR(45) NULL,
   PRIMARY KEY (`CommentLikeID`),
@@ -122,7 +122,7 @@ ENGINE = InnoDB;
 -- Table `animatrix`.`PostLikes`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `animatrix`.`PostLikes` (
-  `PostLikeID` VARCHAR(45) NOT NULL,
+  `PostLikeID` VARCHAR(45) NOT NULL DEFAULT (UUID()),
   `PostID` VARCHAR(45) NOT NULL,
   `UserID` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`PostLikeID`),
@@ -172,3 +172,8 @@ ENGINE = InnoDB;
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+
+select * from users;
+select * from usercredentials;
+UPDATE usercredentials SET isAdmin = 1 WHERE username = 'admin';

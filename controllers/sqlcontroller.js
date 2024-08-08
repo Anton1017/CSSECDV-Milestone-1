@@ -10,7 +10,7 @@ const { ExpressHandlebars } = require('express-handlebars');
 // controller requires routes but routes also requires controller
 //const { post } = require('../routes/routes.js');
 
-const controller = {
+const sqlcontroller = {
 
     // Display login page after receiving request from auth.js
     getLogin: (req, res) => {
@@ -313,4 +313,4 @@ const controller = {
 }
 
 
-module.exports = controller;
+module.exports = sqlcontroller;

@@ -1,7 +1,7 @@
 <!-- A post{} and comment[] will be passed to this hbs -->
 <div class="main_content">
 		<p class>// <a href="/home">Home</a> > {{ this.title }}</p>
-		<p class="post-poster-time">posted by: <a href="/view-profile?username={{post.users.Username}}"> {{ post.users.Username }} </a> | {{ post.postingTime }}<p>
+		<p class="post-poster-time">posted by: <a href="/view-profile?username={{post.users.Username}}"> {{ post.users.Username }} </a> | {{ post.TimePosted }}<p>
 		
 	<div class="post-header">
 		<input type="hidden" class="post-like" name="_id" value="{{_id}}"/>

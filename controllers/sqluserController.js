@@ -124,11 +124,12 @@ exports.loginUser = async (req, res) => {
         password
       } = req.body;
 
-      const user = await prisma.UserCredentials.findUnique({
+      const user = await prisma.usercredentials.findUnique({
         where: {
           Username: username,
         },
       })
+      console.log(user)
       if (user==null){
         req.flash('error_msg', 'Incorrect credentials. Please try again.');
         return res.redirect('/login');
@@ -143,14 +144,19 @@ exports.loginUser = async (req, res) => {
           // console.log("Login Success");
           // console.log(req.session);
           req.flash('error_msg', 'Login successful.');
-          if (user.IsAdmin == 1)
+          console.log("Login successful.")
+          req.session.user = user.UserID;
+          req.session.username = user.Username;
+          req.session.IsAdmin = user.isAdmin;
+          console.log(req.session.IsAdmin);
+          if (user.isAdmin == 1)
           {
-            console.log("Went to home");
+            console.log("is admin");
             return res.redirect('/home-page');
           }
-          else if (user.IsAdmin == 0)
+          else if (user.isAdmin == 0)
           {
-            console.log("Went to home");
+            console.log("is not admin");
             return res.redirect('/home-page');
           }
           //return res.redirect('/login');

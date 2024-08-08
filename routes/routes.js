@@ -2,6 +2,7 @@ const router = require('express').Router();
 // Use the controller to process requests
 const controller = require('../controllers/controller.js');
 const homeController = require('../controllers/homeController.js')
+const sqlcontroller = require('../controllers/sqlcontroller');
 
 const { isPrivate } = require('../middlewares/checkAuth'); //requires users to be logged in to access these pages
 const nocache = require('../middlewares/invalidateCache');
@@ -13,17 +14,17 @@ const Comment = require('../models/Comment.js');
 const Post = require('../models/Post.js');
 const Profile = require('../models/Profile.js');
 const User = require('../models/User.js');
-
+const sqlhomeController = require('../controllers/sqlhomeController');
 
 const path = require('path');
 
 router.use(nocache);
 router.use(resetSessionTimeout);
 
-router.get('/', isPrivate, controller.getPosts);
+router.get('/', isPrivate, sqlcontroller.getPosts);
 
 //duplicate route for home
-router.get('/home', isPrivate, controller.getPosts);
+router.get('/home', isPrivate, sqlcontroller.getPosts);
 
 
 router.get('/view-profile', isPrivate, controller.getViewProfile);
@@ -38,11 +39,11 @@ router.get('/like-comment', isPrivate, controller.likeComment);
 
 router.post('/submit-post', isPrivate, postValidation, homeController.submitPost);
 
-router.post('/admin/delete-post', isPrivate, homeController.adminDeletePost);
+router.post('/admin/delete-post', isPrivate, sqlhomeController.adminDeletePost);
 
-router.post('/admin/pin-post', isPrivate, homeController.adminPinPost);
+router.post('/admin/pin-post', isPrivate, sqlhomeController.adminPinPost);
 
-router.post('/admin/unpin-post', isPrivate, homeController.adminUnpinPost);
+router.post('/admin/unpin-post', isPrivate, sqlhomeController.adminUnpinPost);
 
 router.post('/comment-post', isPrivate, homeController.submitComment);
 

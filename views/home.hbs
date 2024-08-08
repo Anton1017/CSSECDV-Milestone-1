@@ -1,9 +1,8 @@
 <div class="user-greeting">
-  {{#if this.IsAdmin}}
-  console.log(IsAdmin)
-    <h2>Hello, admin {{user}}</h2>
+  {{#if isAdmin}}
+    <h2>Hello, admin {{username}}</h2>
   {{else}}
-    <h2>Hello, regular user {{user}}</h2>
+    <h2>Hello, regular user {{username}}</h2>
   {{/if}}
 </div>
 <div class="main_content">
@@ -28,10 +27,10 @@
 	</h1><br>
 	
 	{{#each posts}}
-		{{#if this.IsPinned}}
-    		{{#unless this.IsDeleted}}
+		{{#if this.isPinned}}
+    		{{#unless this.isDeleted}}
       			{{> post this}}
-				{{#if ../IsAdmin}}
+				{{#if ../isAdmin}}
                     <form action="/admin/unpin-post" method="post">
                         <input type="hidden" name="postId" value="{{this.PostID}}">
                         <button type="submit">Unpin</button>
@@ -51,10 +50,10 @@
 	</h1><br>
 
 	{{#each posts}}
-    	{{#unless this.IsDeleted}}
-			{{#unless this.IsPinned}}
+    	{{#unless this.isDeleted}}
+			{{#unless this.isPinned}}
       			{{> post this}}
-				{{#if ../IsAdmin}}
+				{{#if ../isAdmin}}
                     <form action="/admin/pin-post" method="post">
                         <input type="hidden" name="postId" value="{{this.PostID}}">
                         <button type="submit">Pin</button>

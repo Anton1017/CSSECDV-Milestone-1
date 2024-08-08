@@ -99,3 +99,9 @@ model users {
   usercredentials_usercredentials_UserIDTousers   usercredentials[] @relation("usercredentials_UserIDTousers")
   usercredentials_usercredentials_UsernameTousers usercredentials?  @relation("usercredentials_UsernameTousers")
 }
+
+model sessions {
+  session_id String  @id @db.VarChar(128)
+  expires    Int     @db.UnsignedInt
+  data       String? @db.MediumText
+}

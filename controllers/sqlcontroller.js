@@ -72,32 +72,61 @@ const sqlcontroller = {
         });
     },
 
-    getPosts:  async (req,res) => {
-        posts = await prisma.post.findMany()
-        posts = posts.map(posts => posts.toJSON()); //formats 'posts' to JSON to remove mongoose schema formatting to edit the date on the next step
-        posts.forEach(element => { //uses the moments module to format the date
-            element.postingTime = moment(element.postingTime).fromNow();
-        });
-        posts = posts.reverse();
-        header = await prisma.userprofile.findUnique({
-            where: {
-                UserID: req.session.username,
-            },
+    getPosts: async (req,res) => {
+        console.log("We're at getPosts");
+        //console.log(req.session);
+        try {
+            // Fetch all posts
+            let posts = await prisma.posts.findMany({
+                orderBy: {
+                    TimePosted: 'desc'
+                },
+                include: {
+                    users: {
+                        select: {
+                            Username: true
+                        }
+                    }
+                }
+            });
+    
+            // Format the posts
+            posts = posts.map(post => ({
+                ...post,
+                TimePosted: moment(post.TimePosted).fromNow(),
+                Username: post.users.Username 
+            }));
+    
+            // Fetch the user's profile
+            const header = await prisma.usercredentials.findUnique({
+                where: {
+                    Username: req.session.username
+                }
+            });
 
-        })
-        about_user = await prisma.users.findUnique({
-            where: {
-                Username: req.session.username,
-            },
-
-        })
-        res.render('home', { 
-            posts,
-            username: req.session.username,
-            headerProfileImg: about_user.ProfileImg,
-            pageTitle: 'Home', 
-            name: req.session.name,
-            layout: 'main' } );
+            const user = await prisma.users.findUnique({
+                where: {
+                    Username: req.session.username
+                }
+            })
+            
+            console.log(posts);
+            // Render the home page
+            res.render('home', { 
+                posts,
+                username: req.session.username,
+                userID: req.session.userID,
+                headerProfileImg: user?.ProfileImg,
+                pageTitle: 'Home', 
+                name: req.session.name,
+                isAdmin: header.isAdmin,
+                layout: 'main'
+            });
+    
+        } catch (error) {
+            console.error("Error in getPosts:", error);
+            res.status(500).send("An error occurred while fetching posts");
+        }
     },
     // Display view profile page
     getViewProfile: async (req, res) => {

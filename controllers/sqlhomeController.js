@@ -232,11 +232,11 @@ const homeController = {
     adminDeletePost: async (req, res) => {
         console.log("We're at adminDeletePost");
         const { postId } = req.body;
-        if (req.session.isAdmin){
+        if (req.session.IsAdmin){
             try {
                 await prisma.posts.update({
                     where: { PostID: postId },
-                    data: { IsDeleted: true },
+                    data: { isDeleted: 1 },
                 });
                 res.redirect('/');
             } catch (error) {
@@ -252,11 +252,11 @@ const homeController = {
     adminPinPost: async (req, res) => {
         console.log("We're at adminPinPost");
         const { postId } = req.body;
-        if (req.session.isAdmin){
+        if (req.session.IsAdmin){
             try {
                 await prisma.posts.update({
                   where: { PostID: postId },
-                  data: { IsPinned: true },
+                  data: { isPinned: 1 },
                 });
                 res.redirect('/');
             } catch (error) {
@@ -272,11 +272,11 @@ const homeController = {
     adminUnpinPost: async (req, res) => {
         console.log("We're at adminUnpinPost");
         const { postId } = req.body;
-        if (req.session.isAdmin){
+        if (req.session.IsAdmin){
             try {
                 await prisma.posts.update({
                   where: { PostID: postId },
-                  data: { IsPinned: false },
+                  data: { isPinned: 0 },
                 });
                 res.redirect('/');
             } catch (error) {

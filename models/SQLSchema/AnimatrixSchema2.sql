@@ -21,40 +21,20 @@ USE `animatrix` ;
 -- Table `animatrix`.`Users`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `animatrix`.`Users` (
-  `UsersID` VARCHAR(45) NOT NULL DEFAULT (UUID()),
-  `Username` VARCHAR(45) NOT NULL,
+  `UserID` VARCHAR(45) NOT NULL,
   `Email` VARCHAR(45) NOT NULL,
-  `Password` VARCHAR(60) NOT NULL,
-  `PasswordSalt` VARCHAR(45) NOT NULL,
-  `ProfileImg` VARCHAR(48) NOT NULL,
   `FullName` VARCHAR(45) NOT NULL,
   `ContactNumber` VARCHAR(15) NOT NULL,
-  `DateRegistered` DATETIME NOT NULL DEFAULT (NOW()),
-  `DateModified` DATETIME NOT NULL DEFAULT (NOW()),
-  `IsAdmin` TINYINT(1) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`UsersID`),
+  `DateRegistered` DATETIME NOT NULL,
+  `DateModified` DATETIME NOT NULL,
+  `ProfileImg` VARCHAR(45) NOT NULL,
+  `Bio` VARCHAR(100) NULL,
+  `FavoriteQuote` VARCHAR(45) NULL,
+  `FavoriteCharImg` VARCHAR(45) NULL,
+  `Username` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`UserID`),
   UNIQUE INDEX `Email_UNIQUE` (`Email` ASC) VISIBLE,
   UNIQUE INDEX `Username_UNIQUE` (`Username` ASC) VISIBLE)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `animatrix`.`UserProfile`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `animatrix`.`UserProfile` (
-  `UserProfileID` VARCHAR(45) NOT NULL DEFAULT (UUID()),
-  `UserID` VARCHAR(45) NOT NULL,
-  `Bio` VARCHAR(45) NULL,
-  `FavQuote` VARCHAR(45) NULL,
-  `FaveCharImg` VARCHAR(45) NULL,
-  PRIMARY KEY (`UserProfileID`),
-  INDEX `ProfileUserID_idx` (`UserID` ASC) VISIBLE,
-  UNIQUE INDEX `UserProfileID_UNIQUE` (`UserProfileID` ASC) VISIBLE,
-  CONSTRAINT `ProfileUserID`
-    FOREIGN KEY (`UserID`)
-    REFERENCES `animatrix`.`Users` (`UsersID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
@@ -62,18 +42,20 @@ ENGINE = InnoDB;
 -- Table `animatrix`.`Posts`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `animatrix`.`Posts` (
-  `PostID` VARCHAR(45) NOT NULL DEFAULT (UUID()),
+  `PostID` VARCHAR(45) NOT NULL,
   `UserID` VARCHAR(45) NOT NULL,
   `Title` VARCHAR(45) NOT NULL,
   `TextContent` VARCHAR(45) NULL,
   `ImageContent` VARCHAR(45) NULL,
   `NumLikes` INT NOT NULL DEFAULT 0,
-  `TimePosted` DATETIME NULL DEFAULT (NOW()),
+  `TimePosted` DATETIME NULL,
+  `isPinned` TINYINT NOT NULL DEFAULT 0,
+  `isDeleted` TINYINT NOT NULL DEFAULT 0,
   PRIMARY KEY (`PostID`),
   INDEX `PosterID_idx` (`UserID` ASC) VISIBLE,
   CONSTRAINT `PosterID`
     FOREIGN KEY (`UserID`)
-    REFERENCES `animatrix`.`Users` (`UsersID`)
+    REFERENCES `animatrix`.`Users` (`UserID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -83,21 +65,21 @@ ENGINE = InnoDB;
 -- Table `animatrix`.`PostComments`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `animatrix`.`PostComments` (
-  `PostCommentID` VARCHAR(45) NOT NULL DEFAULT (UUID()),
+  `PostCommentID` VARCHAR(45) NOT NULL,
   `PostID` VARCHAR(45) NOT NULL,
   `CommenterID` VARCHAR(45) NOT NULL,
   `TextContent` VARCHAR(255) NULL,
   `ImageContent` VARCHAR(45) NULL,
   `ParentCommentID` VARCHAR(45) NULL,
   `NumComments` INT NOT NULL DEFAULT 0,
-  `TimeCommented` DATETIME NOT NULL DEFAULT (NOW()),
+  `TimeCommented` DATETIME NOT NULL,
   PRIMARY KEY (`PostCommentID`),
   INDEX `CommenterID_idx` (`CommenterID` ASC) VISIBLE,
   INDEX `PostID_idx` (`PostID` ASC) VISIBLE,
   INDEX `ParentCommentID_idx` (`ParentCommentID` ASC) VISIBLE,
   CONSTRAINT `CommenterID`
     FOREIGN KEY (`CommenterID`)
-    REFERENCES `animatrix`.`Users` (`UsersID`)
+    REFERENCES `animatrix`.`Users` (`UserID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `PostID`
@@ -117,7 +99,7 @@ ENGINE = InnoDB;
 -- Table `animatrix`.`CommentLikes`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `animatrix`.`CommentLikes` (
-  `CommentLikeID` VARCHAR(45) NOT NULL DEFAULT (UUID()),
+  `CommentLikeID` VARCHAR(45) NOT NULL,
   `CommentID` VARCHAR(45) NULL,
   `UserID` VARCHAR(45) NULL,
   PRIMARY KEY (`CommentLikeID`),
@@ -130,7 +112,7 @@ CREATE TABLE IF NOT EXISTS `animatrix`.`CommentLikes` (
     ON UPDATE NO ACTION,
   CONSTRAINT `UserLikedCommentID`
     FOREIGN KEY (`UserID`)
-    REFERENCES `animatrix`.`Users` (`UsersID`)
+    REFERENCES `animatrix`.`Users` (`UserID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -140,7 +122,7 @@ ENGINE = InnoDB;
 -- Table `animatrix`.`PostLikes`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `animatrix`.`PostLikes` (
-  `PostLikeID` VARCHAR(45) NOT NULL DEFAULT (UUID()),
+  `PostLikeID` VARCHAR(45) NOT NULL,
   `PostID` VARCHAR(45) NOT NULL,
   `UserID` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`PostLikeID`),
@@ -149,12 +131,39 @@ CREATE TABLE IF NOT EXISTS `animatrix`.`PostLikes` (
   UNIQUE INDEX `PostLikeID_UNIQUE` (`PostLikeID` ASC) VISIBLE,
   CONSTRAINT `UserLikePostID`
     FOREIGN KEY (`UserID`)
-    REFERENCES `animatrix`.`Users` (`UsersID`)
+    REFERENCES `animatrix`.`Users` (`UserID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `PostLikedID`
     FOREIGN KEY (`PostID`)
     REFERENCES `animatrix`.`Posts` (`PostID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `animatrix`.`UserCredentials`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `animatrix`.`UserCredentials` (
+  `Username` VARCHAR(45) NOT NULL,
+  `Password` VARCHAR(60) NOT NULL,
+  `PasswordSalt` VARCHAR(45) NULL,
+  `isAdmin` TINYINT(1) NOT NULL DEFAULT 0,
+  `UserID` VARCHAR(45) NOT NULL,
+  `DateRegistered` DATETIME NULL,
+  `DateModified` DATETIME NULL,
+  UNIQUE INDEX `Username_UNIQUE` (`Username` ASC) VISIBLE,
+  PRIMARY KEY (`Username`),
+  INDEX `user_id_idx` (`UserID` ASC) VISIBLE,
+  CONSTRAINT `user_id`
+    FOREIGN KEY (`UserID`)
+    REFERENCES `animatrix`.`Users` (`UserID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `user_name`
+    FOREIGN KEY (`Username`)
+    REFERENCES `animatrix`.`Users` (`Username`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;

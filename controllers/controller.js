@@ -116,9 +116,9 @@ const controller = {
             });
     
         } catch (error) {
-            let error_msg = "Error in getPosts:" + error
+            let error_msg = "Error in getPosts: " + error
             console.error(error_msg);
-            sendErrorMessage(error_msg);
+            sendErrorMessage(error_msg, res);
         }
     },
 
@@ -240,9 +240,9 @@ const controller = {
                 isOwnPost: (req.session.userID === post.UserID)
             });
         } catch (error) {
-            let error_msg = "Error in getViewPost:" + error
+            let error_msg = "Error in getViewPost: " + error
             console.error(error_msg);
-            sendErrorMessage(error_msg);
+            sendErrorMessage(error_msg, res);
         }
     },
 

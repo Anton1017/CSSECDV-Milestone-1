@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-function sendErrorMessage(error_msg){
+function sendErrorMessage(error_msg, res){
     if(process.env.DEBUG_MODE == 1){
         res.status(500).send(error_msg);
     } else {

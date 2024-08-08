@@ -168,9 +168,9 @@ const sqlcontroller = {
             }
             res.render('view_profile', profile_render);
         } catch(error){
-            let error_msg = "Error in getViewProfile:" + error
+            let error_msg = "Error in getViewProfile: " + error
             console.error(error_msg);
-            sendErrorMessage(error_msg);
+            sendErrorMessage(error_msg, res);
         }
     },
 

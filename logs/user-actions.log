@@ -5,3 +5,5 @@
 2024-08-08T07:58:36.129Z - IP: ::1, User: Guest, Method: POST, URL: /signup, Message: Validation failed
 2024-08-08T07:59:22.123Z - IP: ::1, User: Guest, Method: POST, URL: /signup, Message: Validation failed
 2024-08-08T08:02:13.137Z - IP: ::1, User: Guest, Method: POST, URL: /signup, Message: Validation failed
+2024-08-08T15:41:28.606Z - IP: ::1, User: Guest, Method: POST, URL: /login, Message: Login successful (userID: e49805d1-558c-11ef-aed2-089798efa348)
+2024-08-08T15:46:31.038Z - IP: ::1, User: Guest, Method: POST, URL: /login, Message: Login successful (userID: e49805d1-558c-11ef-aed2-089798efa348)

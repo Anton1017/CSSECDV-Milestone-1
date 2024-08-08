@@ -273,9 +273,9 @@ const {
             else
                 res.status(403).send('Unauthorized');
         } catch (error) {
-            let error_msg = "Error in adminDeletePost:" + error
+            let error_msg = "Error in adminDeletePost: " + error
             console.error(error_msg);
-            sendErrorMessage(error_msg);
+            sendErrorMessage(error_msg, res);
         }   
     },
 
@@ -293,9 +293,9 @@ const {
             else
                 res.status(403).send('Unauthorized');
         } catch (error) {
-            let error_msg = "Error in adminPinPost:" + error
+            let error_msg = "Error in adminPinPost: " + error
             console.error(error_msg);
-            sendErrorMessage(error_msg);
+            sendErrorMessage(error_msg, res);
         }
     },
 
@@ -313,9 +313,9 @@ const {
             else
                 res.status(403).send('Unauthorized');
         } catch (error) {
-            let error_msg = "Error in adminUnpinPost:" + error
+            let error_msg = "Error in adminUnpinPost: " + error
             console.error(error_msg);
-            sendErrorMessage(error_msg);
+            sendErrorMessage(error_msg, res);
         }
     }
 }

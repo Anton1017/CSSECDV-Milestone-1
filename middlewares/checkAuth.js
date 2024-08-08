@@ -1,5 +1,6 @@
 exports.isPrivate = (req, res, next) => {
     // Must be authenticated to go to the next function
+    console.log(req.session)
     if (req.session.user) {
       return next()
     } else {

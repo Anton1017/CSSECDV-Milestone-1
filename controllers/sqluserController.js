@@ -13,7 +13,7 @@ const { validationResult, body } = require('express-validator');
 const bcrypt = require('bcryptjs');
 
 const opts = {
-  points: 5, // Maximum of 5 points (5 attempts)
+  points: 5000, // Maximum of 5 points (5 attempts)
   duration: 5 * 60, // Points regenerated every 5 minutes
   blockDuration: 25 * 60, // Block for 25 minutes if points are depleted
 };
@@ -113,8 +113,8 @@ exports.registerUser = [
 
 exports.loginUser = async (req, res) => {
  
-  rateLimiter.consume(req.connection.remoteAddress)
-  .then(async (rateLimiterRes) => {
+  //rateLimiter.consume(req.connection.remoteAddress)
+  //.then(async (rateLimiterRes) => {
     // 1 points consumed
     const errors = validationResult(req);
 
@@ -124,7 +124,7 @@ exports.loginUser = async (req, res) => {
         password
       } = req.body;
 
-      const user = await prisma.usercredentials.findUnique({
+      const user = await prisma.UserCredentials.findUnique({
         where: {
           Username: username,
         },
@@ -166,12 +166,12 @@ exports.loginUser = async (req, res) => {
       return res.redirect('/login');
     }
     
-  })
-  .catch((rateLimiterRes) => {
+  //})
+  //.catch((rateLimiterRes) => {
     // Not enough points to consume
-    req.flash('error_msg', 'You have exceeded the login attempts. Please come back later.');
-    return res.redirect('/login');
-  });
+    //req.flash('error_msg', 'You have exceeded the login attempts. Please come back later.');
+    //return res.redirect('/login');
+  //});
 
   
 };

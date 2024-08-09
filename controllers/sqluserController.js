@@ -11,9 +11,9 @@ const {
 
 const { validationResult, body } = require('express-validator');
 const bcrypt = require('bcryptjs');
-
+const sendErrorMessage = require('../middlewares/errorMessage');
 const opts = {
-  points: 5000, // Maximum of 5 points (5 attempts)
+  points: 5, // Maximum of 5 points (5 attempts)
   duration: 5 * 60, // Points regenerated every 5 minutes
   blockDuration: 25 * 60, // Block for 25 minutes if points are depleted
 };
@@ -125,8 +125,8 @@ exports.registerUser = [
 
 exports.loginUser = async (req, res) => {
   try{
-    //rateLimiter.consume(req.connection.remoteAddress)
-    //.then(async (rateLimiterRes) => {
+    rateLimiter.consume(req.connection.remoteAddress)
+    .then(async (rateLimiterRes) => {
       // 1 points consumed
       const errors = validationResult(req);
 
@@ -141,7 +141,6 @@ exports.loginUser = async (req, res) => {
             Username: username,
           },
         })
-        console.log(user)
         if (user==null){
           req.flash('error_msg', 'Incorrect credentials. Please try again.');
           res.locals.logMessage = 'Incorrect credentials'
@@ -157,20 +156,16 @@ exports.loginUser = async (req, res) => {
             // console.log("Login Success");
             // console.log(req.session);
             req.flash('error_msg', 'Login successful.');
-            console.log("Login successful.")
             req.session.user = user.UserID;
             req.session.username = user.Username;
             req.session.IsAdmin = user.isAdmin;
-            console.log(req.session.IsAdmin);
             if (user.isAdmin == 1)
             {
-              console.log("is admin");
               res.locals.logMessage = `Login successful (admin) (userID: ${user.Username})`
               return res.redirect('/home-page');
             }
             else if (user.isAdmin == 0)
             {
-              console.log("is not admin");
               res.locals.logMessage = `Login successful (userID: ${user.Username})`
               return res.redirect('/home-page');
             }
@@ -189,12 +184,12 @@ exports.loginUser = async (req, res) => {
         return res.redirect('/login');
       }
       
-    //})
-    //.catch((rateLimiterRes) => {
-      // Not enough points to consume
-      //req.flash('error_msg', 'You have exceeded the login attempts. Please come back later.');
-      //return res.redirect('/login');
-    //});
+    })
+    .catch((rateLimiterRes) => {
+       //Not enough points to consume
+      req.flash('error_msg', 'You have exceeded the login attempts. Please come back later.');
+      return res.redirect('/login');
+    });
 
   } catch(error){
       let error_msg = "Error in loginUser: " + error

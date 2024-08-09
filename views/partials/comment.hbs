@@ -4,11 +4,11 @@
 				<input type="hidden" class="comment-like" name="_id" value="{{ _id }}"/>
 				<img class="normal-like-button" src="public/images/like.png">
 				<h2 class="normal-like-count">{{likesBy.length}}</h2>
-				<p class="post-poster-time"><a href="/view-profile?username={{username}}">{{username}}</a> | {{postingTime}}<p>
+				<p class="post-poster-time"><a href="/view-profile?username={{username}}">{{this.CommenterUsername}}</a> | {{this.timeCommented}}<p>
 			</div>
 			<p class="text-post">
-				{{textContent}}
-				{{#if imageContent}}<img class="image-post" src="./{{imageContent }}">{{/if}}
+				{{this.TextContent}}
+				{{#if this.ImageContent}}<img class="image-post" src="./{{imageContent }}">{{/if}}
 			</p>
 			{{#if this.isOwnComment }}
 				<div class="viewpost-btns">

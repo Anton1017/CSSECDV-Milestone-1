@@ -45,7 +45,7 @@ router.post('/admin/pin-post', isPrivate, logMiddleware, sqlhomeController.admin
 
 router.post('/admin/unpin-post', isPrivate, logMiddleware, sqlhomeController.adminUnpinPost);
 
-router.post('/comment-post', isPrivate, homeController.submitComment);
+router.post('/comment-post', isPrivate, sqlhomeController.submitComment);
 
 router.post('/save-editprofile', isPrivate, homeController.editProfile); 
 

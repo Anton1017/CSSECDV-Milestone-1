@@ -10,7 +10,7 @@ const {
   } = require('uuid');
   const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif'];
   const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
-
+const sendErrorMessage = require('../middlewares/errorMessage');
 function validateFileType(file) {
     const viewArray = new Uint8Array(file.data);
 
@@ -96,38 +96,67 @@ function validateFileType(file) {
 
     submitComment: async (req, res) => {
         try{
-            //validations anyone??
-            if (req.files == null){
-                await prisma.comment.create({
-                    data: {
-                    UserID: req.session._userid, 
-                    Title: req.body.title,
-                    TextContent: req.body.textContent || "(Empty post body)",
-                    ImageContent: '/images/' + newname,
-                    },
-                });
-                res.redirect('/view-post?_id=' + req.body._id)
+            const errors = validationResult(req);
+        
+            if (!errors.isEmpty()) {
+                const messages = errors.array().map((item) => item.msg);
+                req.flash('error_msg', messages.join(' '));
+                return res.redirect('/');
             }
-            const image = req.files.imageContent
-            //console.log(req.files.imageContent)
-            //console.log(path.resolve('./public/images', image.name));
-            let newname = uuidv1() + path.extname(image.name);
-            fs.stat('./public/images/' + newname, function(err, data){
-                if(err){
-                    image.name = newname;
+            // Check if user is authenticated
+            if (!req.session.user) {
+                req.flash('error_msg', 'You must be logged in to post.');
+                return res.redirect('/login');
+            }
+        
+            try {
+                let ImageContent = null;
+        
+                if (req.files && req.files.imageContent) {
+                    const image = req.files.imageContent;
+        
+                    // Check file type using magic numbers
+                    if (!validateFileType(image)) {
+                        req.flash('error_msg', 'Invalid image type');
+                        return res.redirect('/');
+                    }
+        
+                    // Validate file size
+                    if (image.size > MAX_IMAGE_SIZE) {
+                        req.flash('error_msg', 'Image size exceeds the limit of 5MB');
+                        return res.redirect('/');
+                    }
+        
+                    // Sanitize file name
+                    const ext = path.extname(image.name);
+                    const newname = uuidv1() + ext;
+                    const imagePath = path.resolve('./public/images', newname);
+        
+                    // Ensure the directory exists
+                    if (!fs.existsSync(path.dirname(imagePath))) {
+                        fs.mkdirSync(path.dirname(imagePath), { recursive: true });
+                    }
+        
+                    await image.mv(imagePath);
+        
+                    ImageContent = '/images/' + newname;
                 }
-            });
-            image.mv(path.resolve('./public/images', newname), async (error) => {
-                await prisma.comment.create({
+        
+                await prisma.postcomments.create({
                     data: {
-                    UserID: req.session._userid, 
-                    Title: req.body.title,
+                    PostID: req.body._id,
+                    CommenterID: req.session.user, 
                     TextContent: req.body.textContent || "(Empty post body)",
-                    ImageContent: '/images/' + newname,
+                    ImageContent,
                     },
                 });
+                res.locals.logMessage = `UserID: ${req.session.username} created a comment on post ${req.body._id}`
                 res.redirect('/view-post?_id=' + req.body._id)
-            });
+            } catch (error) {
+                console.error("Error in submitComment:", error);
+                res.status(500).send("An error occurred while submitting the comment");
+                res.locals.logMessage = `UserID: ${req.session.user} has an error in submitting a comment`
+            }
         } catch(error){
             let error_msg = "Error in submitComment: " + error
             console.error(error_msg);

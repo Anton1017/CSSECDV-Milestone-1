@@ -70,7 +70,6 @@ function logMiddleware(req, res, next) {
     // if status message is different from default message, assume to be logged
     if(statusMsg.localeCompare(defaultMsg) != 0){
       const message = `IP: ${req.ip}, User: ${user}, Method: ${req.method}, URL: ${req.url}, Message: ${statusMsg}`;
-      console.log(res.locals)
       logMessage(message);
     }
   });

@@ -74,7 +74,7 @@ const sqlcontroller = {
     },
 
     getPosts: async (req,res) => {
-        console.log("We're at getPosts");
+        //console.log("We're at getPosts");
         //console.log(req.session);
         try {
             // Fetch all posts
@@ -113,7 +113,6 @@ const sqlcontroller = {
 
             const formattedDateCreated = moment(user.DateRegistered).format('YYYY-MM-DD');
 
-            console.log(posts);
             // Render the home page
             res.render('home', { 
                 posts,
@@ -198,7 +197,6 @@ const sqlcontroller = {
 
     getViewPost: async (req, res) => {
         try {
-            console.log(req.query._id);
 
             const post = await prisma.posts.findUnique({
                 where: { PostID: req.query._id },
@@ -215,7 +213,6 @@ const sqlcontroller = {
                 where: {PostID: req.query._id}
             });
 
-            console.log(post);
 
             if (post.IsDeleted) {
                 return res.redirect('/home-page');

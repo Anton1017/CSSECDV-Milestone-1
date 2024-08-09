@@ -1,6 +1,6 @@
-# ANIMATRIX - CSSECDV Milestone 1
+# ANIMATRIX - CSSECDV Milestone 2
 
-Animatrix is an online anime discussion forum web application initially created for the completion of the requirements of CCAPDEV - Web Application Development, and subsequently modified for the requirements of CSSECDV Milestone 1.
+Animatrix is an online anime discussion forum web application initially created for the completion of the requirements of CCAPDEV - Web Application Development, and subsequently modified for the requirements of CSSECDV Milestone 2.
 
 ## Deployment Instructions
 
